@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "2jgYdtx+4wg=",
+  "success": true,
+  "projectFilePath": "C:\\DatingApp\\API\\API.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ZE587GW\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.5\\microsoft.aspnetcore.openapi.10.0.5.nupkg.sha512",
+    "C:\\Users\\ZE587GW\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
