@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DatingApp\\backEnd\\API\\API.csproj": {}
+    "C:\\DatingApp\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\DatingApp\\backEnd\\API\\API.csproj": {
+    "C:\\DatingApp\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DatingApp\\backEnd\\API\\API.csproj",
+        "projectUniqueName": "C:\\DatingApp\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\DatingApp\\backEnd\\API\\API.csproj",
+        "projectPath": "C:\\DatingApp\\API\\API.csproj",
         "packagesPath": "C:\\Users\\ZE587GW\\.nuget\\packages\\",
-        "outputPath": "C:\\DatingApp\\backEnd\\API\\obj\\",
+        "outputPath": "C:\\DatingApp\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ZE587GW\\AppData\\Roaming\\NuGet\\NuGet.Config"
