@@ -26,6 +26,8 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
+        // Postman: POST http://localhost:5000/api/users
+        // Body (raw JSON): { "email": "joao@example.com", "displayname": "Joao" }
         try
         {
             var useCase = new CreateUserUseCase(_userRepository);
@@ -49,6 +51,8 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
+        // Postman: GET http://localhost:5000/api/users/{id}
+        // Exemplo: GET http://localhost:5000/api/users/SEU_ID_AQUI
         var useCase = new GetUserByIdUseCase(_userRepository);
         var user = await useCase.ExecuteAsync(id);
 
@@ -64,6 +68,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
+        // Postman: GET http://localhost:5000/api/users
         var users = await _userRepository.GetAllAsync();
         return Ok(users);
     }
@@ -74,6 +79,8 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
+        // Postman: DELETE http://localhost:5000/api/users/{id}
+        // Exemplo: DELETE http://localhost:5000/api/users/SEU_ID_AQUI
         var userExists = await _userRepository.GetByIdAsync(id);
         if (userExists == null)
             return NotFound(new { error = "Usuário não encontrado" });
