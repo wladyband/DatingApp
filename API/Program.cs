@@ -13,6 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+builder.Services.AddCors();
+
 // Register ports and adapters
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -23,6 +25,9 @@ builder.Services.AddApplicationServices();
 //builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 
 // Configure the HTTP request pipeline.
 
