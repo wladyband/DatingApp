@@ -11,7 +11,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class App implements OnInit {
   private http = inject(HttpClient);
-  protected title = 'client';
+  protected title = 'Dating app';
   protected users = signal<any>([]);
 
   async ngOnInit() {
@@ -19,7 +19,7 @@ export class App implements OnInit {
   }
   async getUsers() {
     try {
-      return await lastValueFrom(this.http.get('https://localhost:5001/api/users'));
+      return await lastValueFrom(this.http.get('http://localhost:5001/api/users'));
     } catch (error) {
       console.error('Error fetching users:', error);
       return [];
