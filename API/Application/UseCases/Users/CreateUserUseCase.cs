@@ -34,7 +34,9 @@ public class CreateUserUseCase
         var user = new AppUser
         {
             Email = input.Email,
-            Displayname = input.Displayname
+            Displayname = input.Displayname,
+            PasswordHash = Array.Empty<byte>(),
+            PasswordSalt = Array.Empty<byte>()
         };
 
         // Persistir

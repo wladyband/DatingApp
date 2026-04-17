@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "dracula-theme.theme-dracula",
+    "zhuangtongfa.Material-theme",
+    "equinusocio.vsc-community-material-theme"
+  ]
+}

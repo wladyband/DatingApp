@@ -4,5 +4,80 @@
   "editor.formatOnType": true,
   "[csharp]": {
     "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+
+  // Tema recomendado para melhor contraste de sintaxe C#.
+  // Descomente a linha abaixo se tiver o tema "Dracula Official" instalado.
+  // "workbench.colorTheme": "Dracula Official",
+
+  // Personalização de cores de sintaxe para C# - Diferencia classe, interface, método, etc.
+  "editor.tokenColorCustomizations": {
+    "[Default Dark Modern]": {
+      "comments": "#6A9955",
+      "strings": "#CE9178",
+      "numbers": "#B5CEA8",
+      "keywords": "#569CD6",
+      "types": "#4EC9B0",
+      "functions": "#DCDCAA",
+      "variables": "#9CDCFE",
+      "textMetaTagDelimiter": "#808080"
+    }
+  },
+
+  // Customizações semânticas de token para melhor diferenciação de elementos C#.
+  "editor.semanticTokenColorCustomizations": {
+    "[Default Dark Modern]": {
+      "enabled": true,
+      "rules": {
+        "class": {
+          "foreground": "#4EC9B0",
+          "fontStyle": "bold"
+        },
+        "interface": {
+          "foreground": "#B8D7A3",
+          "fontStyle": "bold italic"
+        },
+        "struct": {
+          "foreground": "#86C691",
+          "fontStyle": "bold"
+        },
+        "enum": {
+          "foreground": "#B5CEA8",
+          "fontStyle": "bold"
+        },
+        "method": {
+          "foreground": "#DCDCAA"
+        },
+        "function": {
+          "foreground": "#DCDCAA"
+        },
+        "property": {
+          "foreground": "#9CDCFE"
+        },
+        "variable": {
+          "foreground": "#9CDCFE"
+        },
+        "parameter": {
+          "foreground": "#9CDCFE"
+        },
+        "namespace": {
+          "foreground": "#4EC9B0",
+          "fontStyle": "italic"
+        },
+        "comment": {
+          "foreground": "#6A9955",
+          "fontStyle": "italic"
+        },
+        "keyword": {
+          "foreground": "#569CD6"
+        },
+        "string": {
+          "foreground": "#CE9178"
+        },
+        "number": {
+          "foreground": "#B5CEA8"
+        }
+      }
+    }
   }
 }
