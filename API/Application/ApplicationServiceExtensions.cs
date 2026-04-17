@@ -10,9 +10,10 @@ public static class ApplicationServiceExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // Registrar use cases
         services.AddScoped<CreateUserUseCase>();
         services.AddScoped<GetUserByIdUseCase>();
+        services.AddScoped<GetAllUsersUseCase>();
+        services.AddScoped<DeleteUserUseCase>();
 
         return services;
     }

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using API.Application.UseCases.Users;
-using API.Application.Ports;
 
 namespace API.Controllers;
 
@@ -13,11 +12,21 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
+    private readonly CreateUserUseCase _createUserUseCase;
+    private readonly GetUserByIdUseCase _getUserByIdUseCase;
+    private readonly GetAllUsersUseCase _getAllUsersUseCase;
+    private readonly DeleteUserUseCase _deleteUserUseCase;
 
-    public UsersController(IUserRepository userRepository)
+    public UsersController(
+        CreateUserUseCase createUserUseCase,
+        GetUserByIdUseCase getUserByIdUseCase,
+        GetAllUsersUseCase getAllUsersUseCase,
+        DeleteUserUseCase deleteUserUseCase)
     {
-        _userRepository = userRepository;
+        _createUserUseCase = createUserUseCase;
+        _getUserByIdUseCase = getUserByIdUseCase;
+        _getAllUsersUseCase = getAllUsersUseCase;
+        _deleteUserUseCase = deleteUserUseCase;
     }
 
     /// <summary>
@@ -26,12 +35,11 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
-        // Postman: POST http://localhost:5001/api/users
+        // Postman: POST http://localhost:5000/api/users
         // Body (raw JSON): { "email": "joao@example.com", "displayname": "Joao" }
         try
         {
-            var useCase = new CreateUserUseCase(_userRepository);
-            var user = await useCase.ExecuteAsync(input);
+            var user = await _createUserUseCase.ExecuteAsync(input);
 
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
@@ -51,10 +59,9 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
-        // Postman: GET http://localhost:5001/api/users/{id}
-        // Exemplo: GET http://localhost:5001/api/users/SEU_ID_AQUI
-        var useCase = new GetUserByIdUseCase(_userRepository);
-        var user = await useCase.ExecuteAsync(id);
+        // Postman: GET http://localhost:5000/api/users/{id}
+        // Exemplo: GET http://localhost:5000/api/users/SEU_ID_AQUI
+        var user = await _getUserByIdUseCase.ExecuteAsync(id);
 
         if (user == null)
             return NotFound(new { error = "Usuário não encontrado" });
@@ -68,8 +75,8 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        // Postman: GET http://localhost:5001/api/users
-        var users = await _userRepository.GetAllAsync();
+        // Postman: GET http://localhost:5000/api/users
+        var users = await _getAllUsersUseCase.ExecuteAsync();
         return Ok(users);
     }
 
@@ -79,14 +86,11 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
-        // Postman: DELETE http://localhost:5001/api/users/{id}
-        // Exemplo: DELETE http://localhost:5001/api/users/SEU_ID_AQUI
-        var userExists = await _userRepository.GetByIdAsync(id);
-        if (userExists == null)
+        // Postman: DELETE http://localhost:5000/api/users/{id}
+        // Exemplo: DELETE http://localhost:5000/api/users/SEU_ID_AQUI
+        var deleted = await _deleteUserUseCase.ExecuteAsync(id);
+        if (!deleted)
             return NotFound(new { error = "Usuário não encontrado" });
-
-        await _userRepository.RemoveAsync(id);
-        await _userRepository.SaveChangesAsync();
 
         return NoContent();
     }

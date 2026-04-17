@@ -1,6 +1,5 @@
 using API.Application.Ports;
-using API.Data;
-using API.Entities;
+using API.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Infrastructure.Persistence;

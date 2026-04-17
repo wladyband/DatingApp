@@ -1,5 +1,5 @@
 using API.Application.Ports;
-using API.Entities;
+using API.Core.Entities;
 
 namespace API.Application.UseCases.Users;
 
