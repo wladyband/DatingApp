@@ -44,10 +44,9 @@ public static class InfrastructureServiceExtensions
                     "ConnectionStrings:PostgreSql não foi configurada.");
             }
 
-            services.AddScoped<PostgreSqlUserRepository>();
-
-            services.AddScoped<IUserRepository>(sp =>
-                sp.GetRequiredService<PostgreSqlUserRepository>());
+            throw new InvalidOperationException(
+                "Persistence:Provider 'PostgreSql' para User/AppUser ainda não é suportado neste projeto. " +
+                "Use 'MongoDb' até iniciar o domínio de assinaturas.");
         }
         else if (string.Equals(persistenceOptions.Provider, "MongoDb", StringComparison.OrdinalIgnoreCase))
         {

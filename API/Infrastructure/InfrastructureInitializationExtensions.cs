@@ -20,11 +20,20 @@ public static class InfrastructureInitializationExtensions
             .GetSection(PersistenceOptions.SectionName)
             .Get<PersistenceOptions>() ?? new PersistenceOptions();
 
-        // PostgreSQL: aplica migrations de versionamento sempre que a connection string
-        // estiver configurada, independente do provider ativo. Não popula dados aqui —
-        // o domínio de pagamentos (futuro) cuidará do próprio seed quando suas entidades
-        // forem criadas.
-        await ApplyPostgreSqlMigrationsIfConfiguredAsync(services, logger);
+        var applyPostgreSqlMigrationsOnStartup =
+            configuration.GetValue<bool>("PostgreSql:ApplyMigrationsOnStartup");
+
+        // PostgreSQL: migrações só rodam quando habilitadas explicitamente por configuração.
+        // Isso evita qualquer alteração acidental no banco PostgreSQL enquanto o domínio
+        // de assinaturas ainda não estiver em desenvolvimento.
+        if (applyPostgreSqlMigrationsOnStartup)
+        {
+            await ApplyPostgreSqlMigrationsIfConfiguredAsync(services, logger);
+        }
+        else
+        {
+            logger.LogInformation("Migrações PostgreSQL desabilitadas por configuração.");
+        }
 
         // Seed de dados pertence exclusivamente ao MongoDB (usuários e exercícios).
         // PostgreSQL não recebe seed neste momento.
@@ -136,7 +145,9 @@ public static class InfrastructureInitializationExtensions
             {
                 Id = Guid.NewGuid().ToString(),
                 Displayname = user.Displayname.Trim(),
-                Email = user.Email.Trim()
+                Email = user.Email.Trim(),
+                PasswordHash = Array.Empty<byte>(),
+                PasswordSalt = Array.Empty<byte>()
             });
     }
 

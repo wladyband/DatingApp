@@ -19,7 +19,7 @@ public class PostgreSqlUserRepository : IUserRepository
 
     public async Task<AppUser?> GetByIdAsync(string id)
     {
-        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\" FROM \"Users\" WHERE \"Id\" = @id LIMIT 1";
+        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\", \"PasswordHash\", \"PasswordSalt\" FROM \"Users\" WHERE \"Id\" = @id LIMIT 1";
 
         await using var connection = await _dataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand(sql, connection);
@@ -36,7 +36,7 @@ public class PostgreSqlUserRepository : IUserRepository
 
     public async Task<AppUser?> GetByEmailAsync(string email)
     {
-        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\" FROM \"Users\" WHERE \"Email\" = @email LIMIT 1";
+        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\", \"PasswordHash\", \"PasswordSalt\" FROM \"Users\" WHERE \"Email\" = @email LIMIT 1";
 
         await using var connection = await _dataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand(sql, connection);
@@ -53,7 +53,7 @@ public class PostgreSqlUserRepository : IUserRepository
 
     public async Task<IEnumerable<AppUser>> GetAllAsync()
     {
-        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\" FROM \"Users\"";
+        const string sql = "SELECT \"Id\", \"Displayname\", \"Email\", \"PasswordHash\", \"PasswordSalt\" FROM \"Users\"";
 
         var users = new List<AppUser>();
 
@@ -71,25 +71,29 @@ public class PostgreSqlUserRepository : IUserRepository
 
     public async Task AddAsync(AppUser user)
     {
-        const string sql = "INSERT INTO \"Users\" (\"Id\", \"Displayname\", \"Email\") VALUES (@id, @displayname, @email)";
+        const string sql = "INSERT INTO \"Users\" (\"Id\", \"Displayname\", \"Email\", \"PasswordHash\", \"PasswordSalt\") VALUES (@id, @displayname, @email, @passwordHash, @passwordSalt)";
 
         await using var connection = await _dataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("id", user.Id);
         command.Parameters.AddWithValue("displayname", user.Displayname);
         command.Parameters.AddWithValue("email", user.Email);
+        command.Parameters.AddWithValue("passwordHash", user.PasswordHash);
+        command.Parameters.AddWithValue("passwordSalt", user.PasswordSalt);
         await command.ExecuteNonQueryAsync();
     }
 
     public async Task UpdateAsync(AppUser user)
     {
-        const string sql = "UPDATE \"Users\" SET \"Displayname\" = @displayname, \"Email\" = @email WHERE \"Id\" = @id";
+        const string sql = "UPDATE \"Users\" SET \"Displayname\" = @displayname, \"Email\" = @email, \"PasswordHash\" = @passwordHash, \"PasswordSalt\" = @passwordSalt WHERE \"Id\" = @id";
 
         await using var connection = await _dataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("id", user.Id);
         command.Parameters.AddWithValue("displayname", user.Displayname);
         command.Parameters.AddWithValue("email", user.Email);
+        command.Parameters.AddWithValue("passwordHash", user.PasswordHash);
+        command.Parameters.AddWithValue("passwordSalt", user.PasswordSalt);
         await command.ExecuteNonQueryAsync();
     }
 
@@ -109,7 +113,9 @@ public class PostgreSqlUserRepository : IUserRepository
         {
             Id = reader.GetString(0),
             Displayname = reader.GetString(1),
-            Email = reader.GetString(2)
+            Email = reader.GetString(2),
+            PasswordHash = (byte[])reader[3],
+            PasswordSalt = (byte[])reader[4]
         };
     }
 }

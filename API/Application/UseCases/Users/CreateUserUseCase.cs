@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using API.Application.Ports;
 using API.Core.Entities;
 
@@ -25,16 +26,26 @@ public class CreateUserUseCase
         if (string.IsNullOrWhiteSpace(input.Displayname))
             throw new ArgumentException("Nome de exibição é obrigatório.");
 
+        if (string.IsNullOrWhiteSpace(input.Password))
+            throw new ArgumentException("Senha é obrigatória.");
+
         // Verificar se o email já existe
         var existingUser = await _userRepository.GetByEmailAsync(input.Email);
         if (existingUser != null)
             throw new InvalidOperationException("Um usuário com este email já existe.");
 
+        // Gerar hash e salt da senha
+        using var hmac = new HMACSHA512();
+        var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input.Password));
+        var passwordSalt = hmac.Key;
+
         // Criar novo usuário
         var user = new AppUser
         {
             Email = input.Email,
-            Displayname = input.Displayname
+            Displayname = input.Displayname,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
         };
 
         // Persistir
@@ -47,4 +58,4 @@ public class CreateUserUseCase
 /// <summary>
 /// DTO (Data Transfer Object) para entrada do use case.
 /// </summary>
-public record CreateUserInput(string Email, string Displayname);
+public record CreateUserInput(string Email, string Displayname, string Password);
