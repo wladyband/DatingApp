@@ -2,14 +2,25 @@
 
 ## Visão Geral
 
-Este repositório contém uma API em .NET com arquitetura hexagonal em evolução, organizada para reduzir acoplamento entre regras de negócio e detalhes técnicos de infraestrutura.
+Este repositório contém uma API em .NET 10 com arquitetura hexagonal, organizada para reduzir acoplamento entre regras de negócio e detalhes técnicos de infraestrutura.
 
-Atualmente, o backend já está dividido em camadas com separação de responsabilidades entre:
+O backend está dividido em camadas com separação de responsabilidades:
 
 - Core (conceitos centrais do domínio)
 - Application (casos de uso e portas)
 - Infrastructure (adaptadores técnicos e persistência)
 - Adapters In (controllers HTTP)
+
+### Divisão de Responsabilidades por Banco
+
+A aplicação é um site educacional pago por assinatura. As responsabilidades de persistência são divididas por domínio:
+
+| Domínio | Banco | Estado atual |
+|---|---|---|
+| Conta de usuário e exercícios | MongoDB | Implementado |
+| Pagamentos e assinaturas | PostgreSQL | Reservado — entidades a criar |
+
+Essa separação é intencional: o MongoDB é o banco ativo para todas as operações do produto hoje. O PostgreSQL está presente na arquitetura com seu sistema de versionamento de schema já preparado, mas sem nenhuma tabela de negócio criada. As entidades de pagamento serão adicionadas gradualmente quando esse domínio for desenvolvido.
 
 A autenticação ainda não foi implementada. A estrutura atual foi preparada para permitir múltiplas estratégias no futuro (ex: JWT, OAuth, Cookie, API Key) sem afetar o core.
 
@@ -54,14 +65,21 @@ Responsabilidade:
 - Conter persistência e integrações técnicas.
 
 Conteúdo atual:
-- AppDbContext (EF Core + SQLite)
-- Implementação de IUserRepository (UserRepository)
-- Registro de DI da camada de infraestrutura
+- MongoDB: adapter ativo para usuários. Cria collection, índice de email e aplica seed no startup.
+- PostgreSQL: registrado sempre que a connection string estiver configurada. Aplica migrations de versionamento no startup, mas sem criar tabelas de negócio ainda. Seed de dados não é aplicado ao PostgreSQL.
+- Configuração de persistência por provider (MongoDb ou PostgreSql)
+- Runner de migrations versionadas para o PostgreSQL (`__schema_migrations`)
 
 Arquivos principais:
-- API/Infrastructure/Persistence/AppDbContext.cs
-- API/Infrastructure/Persistence/UserRepository.cs
+- API/Infrastructure/Configuration/PersistenceOptions.cs
+- API/Infrastructure/Configuration/MongoDbOptions.cs
+- API/Infrastructure/Configuration/SeedDataOptions.cs
+- API/Infrastructure/Persistence/MongoUserRepository.cs
+- API/Infrastructure/Persistence/PostgreSqlUserRepository.cs
+- API/Infrastructure/Persistence/PostgreSqlMigrationRunner.cs
+- API/Infrastructure/Persistence/Migrations/PostgreSql/  ← migrations SQL versionadas
 - API/Infrastructure/InfrastructureServiceExtensions.cs
+- API/Infrastructure/InfrastructureInitializationExtensions.cs
 
 ### 4) Adapters In (HTTP)
 
@@ -89,7 +107,7 @@ Fluxo de chamada em runtime:
 2. Controller chama Use Case
 3. Use Case usa Port (interface)
 4. Infrastructure fornece implementação do Port
-5. Implementação acessa banco via EF Core
+5. Adapter selecionado acessa banco conforme provider configurado (PostgreSQL ou MongoDB)
 
 Representação simplificada:
 
@@ -104,7 +122,8 @@ Controllers -> Application UseCases -> Application Ports -> Infrastructure Adapt
 No ponto de entrada, o projeto registra camadas separadamente:
 
 - AddApplicationServices: registra use cases
-- AddInfrastructureServices: registra DbContext e adaptadores concretos
+- AddInfrastructureServices: registra provider de persistência e adapter concreto
+- InitializePersistenceAsync: aplica migrations PostgreSQL + inicializa MongoDB no startup
 
 Arquivo:
 - API/Program.cs
@@ -126,8 +145,11 @@ Arquivo:
 - API/Infrastructure/InfrastructureServiceExtensions.cs
 
 Atualmente registra:
-- AppDbContext (SQLite)
-- IUserRepository -> UserRepository
+- NpgsqlDataSource: sempre registrado quando ConnectionStrings:PostgreSql está configurada (independente do provider ativo)
+- IUserRepository -> PostgreSqlUserRepository quando provider = PostgreSql
+- IUserRepository -> MongoUserRepository quando provider = MongoDb
+
+O `NpgsqlDataSource` ser registrado independentemente do provider ativo é intencional: permite que o runner de migrations do PostgreSQL execute no startup mesmo quando o MongoDB é o provider principal.
 
 ---
 
@@ -148,15 +170,22 @@ API/
       - DeleteUserUseCase.cs
   - ApplicationServiceExtensions.cs
 - Infrastructure/
+  - Configuration/
+    - PersistenceOptions.cs
+    - MongoDbOptions.cs
+    - SeedDataOptions.cs
   - Persistence/
-    - AppDbContext.cs
-    - UserRepository.cs
+    - MongoUserRepository.cs
+    - PostgreSqlUserRepository.cs
+    - PostgreSqlMigrationRunner.cs
+    - Migrations/
+      - PostgreSql/
+        - (arquivos .sql de migrations futuras)
   - InfrastructureServiceExtensions.cs
+  - InfrastructureInitializationExtensions.cs
 - Controllers/
   - UsersController.cs
   - WeatherForecastController.cs
-- Data/
-  - Migrations/
 - Program.cs
 
 ---
@@ -179,18 +208,66 @@ Controller responsável:
 
 ## Banco de Dados e Migrations
 
-Persistência atual:
-- EF Core com SQLite
+### Responsabilidade por Banco
 
-DbContext:
-- API/Infrastructure/Persistence/AppDbContext.cs
+**MongoDB** (provider ativo em desenvolvimento):
+- Gerencia: conta de usuário, exercícios
+- Inicialização automática: cria collection e índice de email no startup
+- Seed de dados: configurável por ambiente via SeedData (Upsert ou IfEmpty)
+- Tolerância a schema: `SetIgnoreExtraElements(true)` — documentos com campos legados não causam erro
 
-Migrations:
-- Pasta atual de migrations em API/Data/Migrations
+**PostgreSQL** (reservado para pagamentos):
+- Gerencia: informações de assinatura e pagamento (a implementar)
+- Inicialização automática: aplica migrations SQL versionadas no startup
+- Seed de dados: nunca recebe seed automático — cada domínio cuida do próprio seed
+- Estado atual: apenas a tabela de histórico `__schema_migrations` existe; nenhuma tabela de negócio foi criada ainda
+
+### Sistema de Migrations do PostgreSQL
+
+O runner de migrations (`PostgreSqlMigrationRunner`) opera da seguinte forma:
+
+1. Cria a tabela `__schema_migrations` se não existir
+2. Lê os arquivos `.sql` da pasta `Infrastructure/Persistence/Migrations/PostgreSql/` em ordem por nome
+3. Compara com o histórico já aplicado
+4. Executa apenas as migrations pendentes, cada uma em transação individual com rollback automático em caso de erro
+5. Registra a migration aplicada com timestamp UTC
+
+O runner executa sempre que a `ConnectionStrings:PostgreSql` estiver configurada, independente do provider ativo de usuários. Isso garante que o schema de pagamentos esteja sempre atualizado, mesmo quando o MongoDB é o banco principal.
+
+### Convenção de Nomes das Migrations
+
+Formato obrigatório: `<timestamp>_<descricao>.sql`
+
+Exemplos:
+- 202604180001_create_subscriptions.sql
+- 202604180002_add_plan_to_subscriptions.sql
+
+### Seleção do Provider de Usuários
+
+Chave Persistence:Provider em appsettings:
+- MongoDb (padrão em desenvolvimento)
+- PostgreSql
+
+### Configurações Necessárias por Provider
+
+PostgreSQL:
+- ConnectionStrings:PostgreSql
+
+MongoDB:
+- MongoDb:ConnectionString
+- MongoDb:Database
+- MongoDb:UsersCollection
+
+### Seed de Dados (MongoDB apenas)
+
+Controlado pela seção SeedData:
+- SeedData:Enabled (true/false)
+- SeedData:Mode (Upsert ou IfEmpty)
+- SeedData:Users (lista de usuários iniciais)
 
 Observação:
-- O DbContext foi movido para Infrastructure/Persistence.
-- As migrations continuam em Data/Migrations por compatibilidade com o estado atual do projeto.
+- O contrato de aplicação (IUserRepository) e a entidade AppUser são únicos e compartilhados pelos dois adapters.
+- Use cases e controllers não precisam ser alterados para trocar o banco.
 
 ---
 
@@ -202,6 +279,8 @@ Observação:
 - Repositório acessado via port (interface)
 - Implementação técnica isolada na infraestrutura
 - Registro de DI separado por camada
+- Responsabilidade de cada banco delimitada por domínio (usuários/exercícios vs pagamentos)
+- Sistema de migrations versionadas para evolução segura do schema PostgreSQL
 
 ---
 
@@ -213,6 +292,8 @@ Para manter o desenho limpo conforme o projeto cresce:
 2. Application não deve depender de detalhes de transporte HTTP.
 3. Controllers não devem conter regras de negócio.
 4. Infraestrutura não deve vazar tipos técnicos para Core/Application.
+5. Entidades de usuário e exercícios permanecem no MongoDB. Não criar tabelas espelho no PostgreSQL.
+6. Entidades de pagamento e assinatura pertencem ao PostgreSQL. Não armazenar no MongoDB.
 
 ---
 
@@ -238,10 +319,27 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 
 ---
 
+## Como Adicionar uma Entidade de Pagamento (PostgreSQL)
+
+Quando o domínio de pagamentos for desenvolvido:
+
+1. Criar a entidade em Core (ex: `Core/Entities/Subscription.cs`)
+2. Criar o port em Application (ex: `Application/Ports/ISubscriptionRepository.cs`)
+3. Criar a migration SQL em `Infrastructure/Persistence/Migrations/PostgreSql/`
+   - Exemplo: `202610010001_create_subscriptions.sql`
+4. Criar o repositório concreto em Infrastructure (ex: `PostgreSqlSubscriptionRepository.cs`)
+5. Registrar no DI em `InfrastructureServiceExtensions.cs`
+
+A migration será aplicada automaticamente no próximo startup.
+
+---
+
 ## Como Rodar o Backend
 
 Pré-requisitos:
-- .NET SDK compatível com o TargetFramework do projeto
+- .NET 10 SDK
+- MongoDB local (ou via Docker) quando usar provider MongoDb
+- PostgreSQL local (ou via Docker) quando usar provider PostgreSql
 
 Passos:
 
@@ -251,11 +349,37 @@ Passos:
 2. Compilar
 - dotnet build
 
-3. Aplicar migrations (se necessário)
-- dotnet ef database update --project API/API.csproj
+3. Configurar provider em API/appsettings.Development.json
+- Persistence:Provider = MongoDb (padrão para desenvolvimento)
 
-4. Executar API
+4. Ajustar credenciais/conexões do provider escolhido
+
+5. Executar API
 - dotnet run --project API/API.csproj
+
+### Rodar com Docker (recomendado para desenvolvimento)
+
+Arquivo de orquestração local:
+- docker-compose.yml
+
+Serviços disponíveis:
+- mongodb (mongo:8) na porta 27017
+- postgres (postgres:17) na porta 5432
+
+Subir ambos:
+- docker compose up -d
+
+Subir apenas MongoDB:
+- docker compose up -d mongodb
+
+Verificar containers ativos:
+- docker ps
+
+Parar containers:
+- docker compose stop
+
+Remover containers e volumes:
+- docker compose down -v
 
 ---
 
@@ -267,4 +391,6 @@ Principais ganhos já alcançados:
 - Separação entre regra de negócio e detalhe técnico
 - Uso consistente de portas e adaptadores no fluxo de usuários
 - Composição por camada no DI
+- Domínios separados por banco: MongoDB para produto, PostgreSQL para pagamentos
+- Sistema de migrations versionadas para o PostgreSQL já operacional
 - Base adequada para suportar múltiplos conectores de autenticação no futuro sem quebrar o core

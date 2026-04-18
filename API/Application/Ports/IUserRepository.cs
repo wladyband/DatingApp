@@ -37,9 +37,4 @@ public interface IUserRepository
     /// Remove um usuário pelo ID.
     /// </summary>
     Task RemoveAsync(string id);
-
-    /// <summary>
-    /// Persiste todas as mudanças para o armazenamento de dados.
-    /// </summary>
-    Task SaveChangesAsync();
 }

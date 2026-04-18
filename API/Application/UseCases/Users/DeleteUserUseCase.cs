@@ -21,7 +21,6 @@ public class DeleteUserUseCase
             return false;
 
         await _userRepository.RemoveAsync(userId);
-        await _userRepository.SaveChangesAsync();
 
         return true;
     }

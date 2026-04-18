@@ -34,14 +34,11 @@ public class CreateUserUseCase
         var user = new AppUser
         {
             Email = input.Email,
-            Displayname = input.Displayname,
-            PasswordHash = Array.Empty<byte>(),
-            PasswordSalt = Array.Empty<byte>()
+            Displayname = input.Displayname
         };
 
         // Persistir
         await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
 
         return user;
     }

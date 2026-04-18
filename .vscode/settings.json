@@ -5,11 +5,9 @@
   "[csharp]": {
     "editor.defaultFormatter": "ms-dotnettools.csharp"
   },
-
   // Tema recomendado para melhor contraste de sintaxe C#.
   // Descomente a linha abaixo se tiver o tema "Dracula Official" instalado.
   // "workbench.colorTheme": "Dracula Official",
-
   // Personalização de cores de sintaxe para C# - Diferencia classe, interface, método, etc.
   "editor.tokenColorCustomizations": {
     "[Default Dark Modern]": {
@@ -23,7 +21,6 @@
       "textMetaTagDelimiter": "#808080"
     }
   },
-
   // Customizações semânticas de token para melhor diferenciação de elementos C#.
   "editor.semanticTokenColorCustomizations": {
     "[Default Dark Modern]": {

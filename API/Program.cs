@@ -20,6 +20,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+await app.InitializePersistenceAsync();
+
 // Politica CORS ativa para origem do frontend em ambiente local.
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
     .WithOrigins("http://localhost:4200", "https://localhost:4200"));

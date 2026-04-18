@@ -8,9 +8,8 @@ namespace API.Controllers;
 /// Mantém-se fino, apenas orquestrando chamadas aos use cases.
 /// A lógica de negócio está nos use cases.
 /// </summary>
-[ApiController]
-[Route("api/[controller]")]
-public class UsersController : ControllerBase
+
+public class UsersController : BaseApiController
 {
     private readonly CreateUserUseCase _createUserUseCase;
     private readonly GetUserByIdUseCase _getUserByIdUseCase;
