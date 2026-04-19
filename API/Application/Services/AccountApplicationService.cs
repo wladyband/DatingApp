@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.External;
 using API.Application.UseCases.Account;
 
 namespace API.Application.Services;
@@ -30,3 +30,5 @@ public class AccountApplicationService
         return user;
     }
 }
+
+

@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.External;
 
 namespace API.Infrastructure.Services;
 
@@ -26,3 +26,5 @@ public class LoggerPortAdapter : ILoggerPort
     public void LogDebug(string message, params object[] args) =>
         _logger.LogDebug(message, args);
 }
+
+

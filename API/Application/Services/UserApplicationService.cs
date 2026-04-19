@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.External;
 using API.Application.UseCases.Users;
 using API.Core.Entities;
 
@@ -49,3 +49,5 @@ public class UserApplicationService
     public async Task<bool> DeleteUserAsync(string userId) =>
         await _deleteUserUseCase.ExecuteAsync(userId);
 }
+
+

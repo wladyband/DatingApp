@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Core.Entities;
 using API.Core.Exceptions;
 
@@ -25,3 +25,5 @@ public class GetUserByIdUseCase
         return await _userRepository.GetByIdAsync(userId);
     }
 }
+
+

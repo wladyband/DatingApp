@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Core.Entities;
 using API.Infrastructure.MongoDb.Configuration;
 using Microsoft.Extensions.Options;
@@ -25,3 +25,5 @@ public class MongoAccountRepository : IAccountRepository
         await _users.InsertOneAsync(user);
     }
 }
+
+

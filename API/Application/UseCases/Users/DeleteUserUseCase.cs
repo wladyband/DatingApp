@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Core.Exceptions;
 
 namespace API.Application.UseCases.Users;
@@ -26,3 +26,5 @@ public class DeleteUserUseCase
         return true;
     }
 }
+
+

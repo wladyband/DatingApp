@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Core.Entities;
 using API.Core.DomainServices;
 using API.Core.Exceptions;
@@ -53,3 +53,5 @@ public class CreateUserUseCase
 /// DTO (Data Transfer Object) para entrada do use case.
 /// </summary>
 public record CreateUserInput(string Email, string Displayname, string Password);
+
+

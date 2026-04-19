@@ -1,6 +1,6 @@
 using API.Core.Entities;
 
-namespace API.Application.Ports;
+namespace API.Application.Ports.Persistence;
 
 /// <summary>
 /// Port que define como o domínio acessa dados de usuários.
@@ -38,3 +38,6 @@ public interface IUserRepository
     /// </summary>
     Task RemoveAsync(string id);
 }
+
+
+

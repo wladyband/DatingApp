@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.External;
 
 namespace API.Infrastructure.Services;
 
@@ -35,3 +35,5 @@ public class EmailService : IEmailService
         return Task.CompletedTask;
     }
 }
+
+

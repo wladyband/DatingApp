@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Core.Entities;
 
 namespace API.Application.UseCases.Users;
@@ -17,3 +17,5 @@ public class GetAllUsersUseCase
         return await _userRepository.GetAllAsync();
     }
 }
+
+

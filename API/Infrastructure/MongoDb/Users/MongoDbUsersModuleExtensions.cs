@@ -1,4 +1,4 @@
-using API.Application.Ports;
+using API.Application.Ports.Persistence;
 using API.Infrastructure.MongoDb.Persistence;
 
 namespace API.Infrastructure.MongoDb.Users;
@@ -15,3 +15,5 @@ public static class MongoDbUsersModuleExtensions
         return services;
     }
 }
+
+

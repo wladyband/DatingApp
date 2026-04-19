@@ -2,7 +2,7 @@ using API.Application;
 using API.Infrastructure;
 using API.Infrastructure.Http.Filters;
 using API.Infrastructure.Services;
-using API.Application.Ports;
+using API.Application.Ports.External;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,3 +42,5 @@ app.MapControllers();
 
 // Inicia a aplicacao web.
 app.Run();
+
+

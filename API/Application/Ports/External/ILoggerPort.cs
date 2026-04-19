@@ -1,4 +1,4 @@
-namespace API.Application.Ports;
+namespace API.Application.Ports.External;
 
 /// <summary>
 /// Port para serviço de logging. Desacopla Application de implementações técnicas de logging.
@@ -10,3 +10,5 @@ public interface ILoggerPort
     void LogError(string message, Exception? exception = null, params object[] args);
     void LogDebug(string message, params object[] args);
 }
+
+
