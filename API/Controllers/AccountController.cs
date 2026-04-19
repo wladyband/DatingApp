@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
+
 public class AccountController : BaseApiController
 {
     private readonly AccountApplicationService _accountApplicationService;
