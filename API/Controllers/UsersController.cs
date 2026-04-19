@@ -5,10 +5,6 @@ using API.Infrastructure.Http;
 
 namespace API.Controllers;
 
-/// <summary>
-/// Controller de entrada (Adapter In) para gerenciar usuários.
-/// Mantém-se fino, apenas orquestrando chamadas aos application services.
-/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController : BaseApiController
@@ -20,9 +16,7 @@ public class UsersController : BaseApiController
         _userApplicationService = userApplicationService;
     }
 
-    /// <summary>
-    /// Cria um novo usuário.
-    /// </summary>
+    // POST http://localhost:5001/api/users
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
@@ -32,9 +26,7 @@ public class UsersController : BaseApiController
             ApiResponse<object>.SuccessResponse(response));
     }
 
-    /// <summary>
-    /// Obtém um usuário por ID.
-    /// </summary>
+    // GET http://localhost:5001/api/users/{id}
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
@@ -46,9 +38,7 @@ public class UsersController : BaseApiController
         return Ok(ApiResponse<object>.SuccessResponse(response));
     }
 
-    /// <summary>
-    /// Obtém todos os usuários.
-    /// </summary>
+    // GET http://localhost:5001/api/users
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
@@ -57,9 +47,7 @@ public class UsersController : BaseApiController
         return Ok(ApiResponse<object>.SuccessResponse(responses));
     }
 
-    /// <summary>
-    /// Deleta um usuário.
-    /// </summary>
+    // DELETE http://localhost:5001/api/users/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {

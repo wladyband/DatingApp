@@ -28,6 +28,7 @@ public class CreateAccountUseCase
             throw new DomainException("Senha é obrigatória.");
 
         var normalizedEmail = input.Email.Trim();
+
         var existingUser = await _accountRepository.GetByEmailAsync(normalizedEmail);
         if (existingUser != null)
             throw new UserAlreadyExistsException(normalizedEmail);
