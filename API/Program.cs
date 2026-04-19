@@ -1,7 +1,7 @@
 using API.Application;
 using API.Infrastructure;
 using API.Infrastructure.Http.Filters;
-using API.Infrastructure.Services;
+using API.Infrastructure.External;
 using API.Application.Ports.External;
 
 var builder = WebApplication.CreateBuilder(args);

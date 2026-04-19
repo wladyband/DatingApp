@@ -1,6 +1,6 @@
 using API.Application.Ports.External;
 
-namespace API.Infrastructure.Services;
+namespace API.Infrastructure.External;
 
 /// <summary>
 /// Implementação de logger que adapta Microsoft.Extensions.Logging para port customizado.

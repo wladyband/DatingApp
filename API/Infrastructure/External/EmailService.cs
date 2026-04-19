@@ -1,6 +1,6 @@
 using API.Application.Ports.External;
 
-namespace API.Infrastructure.Services;
+namespace API.Infrastructure.External;
 
 /// <summary>
 /// Implementação simples de email (placeholder).
