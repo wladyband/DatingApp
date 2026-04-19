@@ -67,17 +67,19 @@ Responsabilidade:
 Conteúdo atual:
 - MongoDB: adapter ativo para usuários. Cria collection, índice de email e aplica seed no startup.
 - PostgreSQL: registrado sempre que a connection string estiver configurada. Aplica migrations de versionamento no startup, mas sem criar tabelas de negócio ainda. Seed de dados não é aplicado ao PostgreSQL.
-- Configuração de persistência por provider (MongoDb ou PostgreSql)
+- Configuração de persistência com provider atual MongoDb (PostgreSQL reservado a assinaturas)
 - Runner de migrations versionadas para o PostgreSQL (`__schema_migrations`)
 
 Arquivos principais:
 - API/Infrastructure/Configuration/PersistenceOptions.cs
-- API/Infrastructure/Configuration/MongoDbOptions.cs
+- API/Infrastructure/MongoDb/Configuration/MongoDbOptions.cs
 - API/Infrastructure/Configuration/SeedDataOptions.cs
-- API/Infrastructure/Persistence/MongoUserRepository.cs
-- API/Infrastructure/Persistence/PostgreSqlUserRepository.cs
-- API/Infrastructure/Persistence/PostgreSqlMigrationRunner.cs
-- API/Infrastructure/Persistence/Migrations/PostgreSql/  ← migrations SQL versionadas
+- API/Infrastructure/MongoDb/Persistence/MongoUserRepository.cs
+- API/Infrastructure/MongoDb/Persistence/MongoAccountRepository.cs
+- API/Infrastructure/PostgreSql/Persistence/PostgreSqlMigrationRunner.cs
+- API/Infrastructure/PostgreSql/Migrations/  ← migrations SQL versionadas
+- API/Infrastructure/MongoDb/MongoDbServiceExtensions.cs
+- API/Infrastructure/PostgreSql/PostgreSqlServiceExtensions.cs
 - API/Infrastructure/InfrastructureServiceExtensions.cs
 - API/Infrastructure/InfrastructureInitializationExtensions.cs
 
@@ -146,8 +148,9 @@ Arquivo:
 
 Atualmente registra:
 - NpgsqlDataSource: sempre registrado quando ConnectionStrings:PostgreSql está configurada (independente do provider ativo)
-- IUserRepository -> PostgreSqlUserRepository quando provider = PostgreSql
 - IUserRepository -> MongoUserRepository quando provider = MongoDb
+- IAccountRepository -> MongoAccountRepository quando provider = MongoDb
+- Repositórios PostgreSQL de assinaturas serão registrados no módulo `PostgreSql/Subscriptions` quando implementados
 
 O `NpgsqlDataSource` ser registrado independentemente do provider ativo é intencional: permite que o runner de migrations do PostgreSQL execute no startup mesmo quando o MongoDB é o provider principal.
 
@@ -172,15 +175,31 @@ API/
 - Infrastructure/
   - Configuration/
     - PersistenceOptions.cs
-    - MongoDbOptions.cs
     - SeedDataOptions.cs
-  - Persistence/
-    - MongoUserRepository.cs
-    - PostgreSqlUserRepository.cs
-    - PostgreSqlMigrationRunner.cs
+  - MongoDb/
+    - Configuration/
+      - MongoDbOptions.cs
+    - Persistence/
+      - MongoUserRepository.cs
+      - MongoAccountRepository.cs
+    - Users/
+      - MongoDbUsersModuleExtensions.cs
+      - MongoDbUsersInitializationExtensions.cs
+    - Accounts/
+      - MongoDbAccountsModuleExtensions.cs
+      - MongoDbAccountsInitializationExtensions.cs
+    - MongoDbServiceExtensions.cs
+    - MongoDbInitializationExtensions.cs
+    - MongoDbMappingsExtensions.cs
+  - PostgreSql/
+    - Persistence/
+      - PostgreSqlMigrationRunner.cs
+    - Subscriptions/
+      - PostgreSqlSubscriptionsModuleExtensions.cs
+    - PostgreSqlServiceExtensions.cs
+    - PostgreSqlInitializationExtensions.cs
     - Migrations/
-      - PostgreSql/
-        - (arquivos .sql de migrations futuras)
+      - (arquivos .sql de migrations futuras)
   - InfrastructureServiceExtensions.cs
   - InfrastructureInitializationExtensions.cs
 - Controllers/
@@ -227,7 +246,7 @@ Controller responsável:
 O runner de migrations (`PostgreSqlMigrationRunner`) opera da seguinte forma:
 
 1. Cria a tabela `__schema_migrations` se não existir
-2. Lê os arquivos `.sql` da pasta `Infrastructure/Persistence/Migrations/PostgreSql/` em ordem por nome
+2. Lê os arquivos `.sql` da pasta `Infrastructure/PostgreSql/Migrations/` em ordem por nome
 3. Compara com o histórico já aplicado
 4. Executa apenas as migrations pendentes, cada uma em transação individual com rollback automático em caso de erro
 5. Registra a migration aplicada com timestamp UTC
@@ -245,8 +264,7 @@ Exemplos:
 ### Seleção do Provider de Usuários
 
 Chave Persistence:Provider em appsettings:
-- MongoDb (padrão em desenvolvimento)
-- PostgreSql
+- MongoDb (único provider suportado no momento)
 
 ### Configurações Necessárias por Provider
 
@@ -266,8 +284,8 @@ Controlado pela seção SeedData:
 - SeedData:Users (lista de usuários iniciais)
 
 Observação:
-- O contrato de aplicação (IUserRepository) e a entidade AppUser são únicos e compartilhados pelos dois adapters.
-- Use cases e controllers não precisam ser alterados para trocar o banco.
+- O contrato de usuários (`IUserRepository`) é atendido somente por MongoDB neste estágio.
+- PostgreSQL está reservado ao domínio de assinaturas/pagamentos e não recebe entidades espelho de usuário.
 
 ---
 
@@ -325,7 +343,7 @@ Quando o domínio de pagamentos for desenvolvido:
 
 1. Criar a entidade em Core (ex: `Core/Entities/Subscription.cs`)
 2. Criar o port em Application (ex: `Application/Ports/ISubscriptionRepository.cs`)
-3. Criar a migration SQL em `Infrastructure/Persistence/Migrations/PostgreSql/`
+3. Criar a migration SQL em `Infrastructure/PostgreSql/Migrations/`
    - Exemplo: `202610010001_create_subscriptions.sql`
 4. Criar o repositório concreto em Infrastructure (ex: `PostgreSqlSubscriptionRepository.cs`)
 5. Registrar no DI em `InfrastructureServiceExtensions.cs`

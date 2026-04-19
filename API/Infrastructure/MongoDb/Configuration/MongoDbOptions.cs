@@ -1,4 +1,4 @@
-namespace API.Infrastructure.Configuration;
+namespace API.Infrastructure.MongoDb.Configuration;
 
 public class MongoDbOptions
 {

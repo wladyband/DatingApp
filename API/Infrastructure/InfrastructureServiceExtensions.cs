@@ -1,10 +1,7 @@
-using API.Application.Ports;
-using API.Core.Entities;
 using API.Infrastructure.Configuration;
-using MongoDB.Bson.Serialization;
-using API.Infrastructure.Persistence;
-using MongoDB.Driver;
-using Npgsql;
+using API.Infrastructure.MongoDb;
+using API.Infrastructure.MongoDb.Configuration;
+using API.Infrastructure.PostgreSql;
 
 namespace API.Infrastructure;
 
@@ -27,72 +24,22 @@ public static class InfrastructureServiceExtensions
         services.Configure<SeedDataOptions>(
             configuration.GetSection(SeedDataOptions.SectionName));
 
-        // PostgreSQL é sempre registrado quando a connection string estiver configurada,
-        // independente do provider ativo. Isso permite que o runner de migrations rode
-        // mesmo quando o MongoDB é o provider principal (ex: para futura área de pagamentos).
+        // PostgreSQL: registra NpgsqlDataSource sempre que a connection string estiver
+        // configurada, para que o runner de migrations funcione independente do provider ativo.
         var postgresConnection = configuration.GetConnectionString("PostgreSql");
         if (!string.IsNullOrWhiteSpace(postgresConnection))
         {
-            services.AddSingleton(_ => NpgsqlDataSource.Create(postgresConnection));
+            services.AddPostgreSqlServices(configuration);
         }
 
-        if (string.Equals(persistenceOptions.Provider, "PostgreSql", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(persistenceOptions.Provider, "MongoDb", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(postgresConnection))
-            {
-                throw new InvalidOperationException(
-                    "ConnectionStrings:PostgreSql não foi configurada.");
-            }
-
-            throw new InvalidOperationException(
-                "Persistence:Provider 'PostgreSql' para User/AppUser ainda não é suportado neste projeto. " +
-                "Use 'MongoDb' até iniciar o domínio de assinaturas.");
-        }
-        else if (string.Equals(persistenceOptions.Provider, "MongoDb", StringComparison.OrdinalIgnoreCase))
-        {
-            if (!BsonClassMap.IsClassMapRegistered(typeof(AppUser)))
-            {
-                BsonClassMap.RegisterClassMap<AppUser>(classMap =>
-                {
-                    classMap.AutoMap();
-                    classMap.SetIgnoreExtraElements(true);
-                });
-            }
-
-            var mongoOptions = configuration
-                .GetSection(MongoDbOptions.SectionName)
-                .Get<MongoDbOptions>() ?? new MongoDbOptions();
-
-            if (string.IsNullOrWhiteSpace(mongoOptions.ConnectionString))
-            {
-                throw new InvalidOperationException(
-                    "MongoDb:ConnectionString não foi configurada.");
-            }
-
-            if (string.IsNullOrWhiteSpace(mongoOptions.Database))
-            {
-                throw new InvalidOperationException(
-                    "MongoDb:Database não foi configurada.");
-            }
-
-            services.AddSingleton<IMongoClient>(_ =>
-                new MongoClient(mongoOptions.ConnectionString));
-
-            services.AddScoped(sp =>
-            {
-                var client = sp.GetRequiredService<IMongoClient>();
-                return client.GetDatabase(mongoOptions.Database);
-            });
-
-            services.AddScoped<MongoUserRepository>();
-
-            services.AddScoped<IUserRepository>(sp =>
-                sp.GetRequiredService<MongoUserRepository>());
+            services.AddMongoDbServices(configuration);
         }
         else
         {
             throw new InvalidOperationException(
-                $"Persistence:Provider '{persistenceOptions.Provider}' não é suportado. Use 'PostgreSql' ou 'MongoDb'.");
+                $"Persistence:Provider '{persistenceOptions.Provider}' não é suportado. Use 'MongoDb'.");
         }
 
         return services;

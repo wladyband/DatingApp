@@ -1,8 +1,10 @@
-using System;
+using API.Core.Entities;
 
 namespace API.Application.Ports;
 
-public class IAccountRepository
+public interface IAccountRepository
 {
+    Task<AppUser?> GetByEmailAsync(string email);
 
+    Task AddAsync(AppUser user);
 }

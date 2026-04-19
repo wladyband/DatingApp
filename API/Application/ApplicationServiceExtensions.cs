@@ -1,3 +1,4 @@
+using API.Application.UseCases.Account;
 using API.Application.UseCases.Users;
 
 namespace API.Application;
@@ -14,6 +15,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<GetUserByIdUseCase>();
         services.AddScoped<GetAllUsersUseCase>();
         services.AddScoped<DeleteUserUseCase>();
+        services.AddScoped<CreateAccountUseCase>();
 
         return services;
     }

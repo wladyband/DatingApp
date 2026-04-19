@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using Npgsql;
 
-namespace API.Infrastructure.Persistence;
+namespace API.Infrastructure.PostgreSql.Persistence;
 
 public static class PostgreSqlMigrationRunner
 {
@@ -15,9 +15,8 @@ public static class PostgreSqlMigrationRunner
         var migrationsDirectory = Path.Combine(
             environment.ContentRootPath,
             "Infrastructure",
-            "Persistence",
-            "Migrations",
-            "PostgreSql");
+            "PostgreSql",
+            "Migrations");
 
         if (!Directory.Exists(migrationsDirectory))
         {

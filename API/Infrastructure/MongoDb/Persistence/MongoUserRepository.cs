@@ -1,10 +1,10 @@
 using API.Application.Ports;
 using API.Core.Entities;
-using API.Infrastructure.Configuration;
+using API.Infrastructure.MongoDb.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace API.Infrastructure.Persistence;
+namespace API.Infrastructure.MongoDb.Persistence;
 
 /// <summary>
 /// Adapter de saída para persistência de usuários no MongoDB.
