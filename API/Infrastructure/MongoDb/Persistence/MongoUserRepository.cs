@@ -1,5 +1,5 @@
 using API.Application.Ports.Persistence;
-using API.Core.Entities;
+using API.Domain.Entities;
 using API.Infrastructure.MongoDb.Configuration;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;

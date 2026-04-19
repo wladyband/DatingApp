@@ -1,17 +1,17 @@
-using API.Application.Services;
+using API.Application.DTOs.Requests.Account;
 using API.Application.UseCases.Account;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Web.Controllers;
 
 
 public class AccountController : BaseApiController
 {
-    private readonly AccountApplicationService _accountApplicationService;
+    private readonly CreateAccountUseCase _createAccountUseCase;
 
-    public AccountController(AccountApplicationService accountApplicationService)
+    public AccountController(CreateAccountUseCase createAccountUseCase)
     {
-        _accountApplicationService = accountApplicationService;
+        _createAccountUseCase = createAccountUseCase;
     }
 
     // POST http://localhost:5001/api/account/register  (Body JSON)
@@ -19,7 +19,7 @@ public class AccountController : BaseApiController
     [HttpPost("register")]
     public async Task<IActionResult> CreateAccount([FromBody] CreateAccountInput input)
     {
-        var user = await _accountApplicationService.CreateAccountAsync(input);
+        var user = await _createAccountUseCase.ExecuteAsync(input);
         return Ok(user);
     }
 
@@ -27,7 +27,7 @@ public class AccountController : BaseApiController
     [HttpPost("register")]
     public async Task<IActionResult> CreateAccountByQuery([FromQuery] CreateAccountInput input)
     {
-        var user = await _accountApplicationService.CreateAccountAsync(input);
+        var user = await _createAccountUseCase.ExecuteAsync(input);
         return Ok(user);
     }
 }

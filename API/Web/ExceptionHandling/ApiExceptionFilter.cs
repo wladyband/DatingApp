@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
-using API.Core.Exceptions;
+using API.Web;
+using API.Domain.Exceptions;
 
-namespace API.Infrastructure.Http.Filters;
+namespace API.Web.ExceptionHandling;
 
 /// <summary>
 /// Exception filter centralizado para tratar todas as exceções de domínio.

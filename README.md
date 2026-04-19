@@ -6,10 +6,10 @@ Este repositório contém uma API em .NET 10 com arquitetura hexagonal, organiza
 
 O backend está dividido em camadas com separação de responsabilidades:
 
-- Core (conceitos centrais do domínio)
+- Domain (conceitos centrais do domínio)
 - Application (casos de uso e portas)
 - Infrastructure (adaptadores técnicos e persistência)
-- Adapters In (controllers HTTP)
+- Web (adaptadores HTTP de entrada)
 
 ### Divisão de Responsabilidades por Banco
 
@@ -22,22 +22,24 @@ A aplicação é um site educacional pago por assinatura. As responsabilidades d
 
 Essa separação é intencional: o MongoDB é o banco ativo para todas as operações do produto hoje. O PostgreSQL está presente na arquitetura com seu sistema de versionamento de schema já preparado, mas sem nenhuma tabela de negócio criada. As entidades de pagamento serão adicionadas gradualmente quando esse domínio for desenvolvido.
 
-A autenticação ainda não foi implementada. A estrutura atual foi preparada para permitir múltiplas estratégias no futuro (ex: JWT, OAuth, Cookie, API Key) sem afetar o core.
+A autenticação ainda não foi implementada. A estrutura atual foi preparada para permitir múltiplas estratégias no futuro (ex: JWT, OAuth, Cookie, API Key) sem afetar o domínio.
 
 ---
 
 ## Estado Atual da Arquitetura
 
-### 1) Core
+### 1) Domain
 
 Responsabilidade:
 - Representar conceitos centrais de negócio sem depender de tecnologia (web, banco, framework de auth etc).
 
 Conteúdo atual:
-- Entidade de usuário em Core.
+- Entidade de usuário.
+- Exceções de domínio.
+- Serviço de domínio para hash de senha.
 
 Arquivo principal:
-- API/Core/Entities/AppUser.cs
+- API/Domain/Entities/AppUser.cs
 
 ### 2) Application
 
@@ -83,25 +85,31 @@ Arquivos principais:
 - API/Infrastructure/InfrastructureServiceExtensions.cs
 - API/Infrastructure/InfrastructureInitializationExtensions.cs
 
-### 4) Adapters In (HTTP)
+### 4) Web
 
 Responsabilidade:
 - Receber requisições HTTP e delegar execução para use cases.
 - Não conter regras de negócio nem acesso direto ao banco.
 
 Conteúdo atual:
-- UsersController consumindo somente use cases.
+- Controllers HTTP consumindo somente use cases.
+- Envelope de resposta HTTP.
+- Exception filter global.
+- DTOs e mapeadores de resposta.
 
-Arquivo principal:
-- API/Controllers/UsersController.cs
+Arquivos principais:
+- API/Web/Controllers/UsersController.cs
+- API/Web/Controllers/AccountController.cs
+- API/Web/ApiResponse.cs
+- API/Web/ExceptionHandling/ApiExceptionFilter.cs
 
 ---
 
 ## Fluxo de Dependências
 
 Regra principal da arquitetura:
-- Dependências apontam para dentro (Infrastructure e Controllers dependem da Application/Core).
-- Core não depende de Infrastructure.
+- Dependências apontam para dentro (Infrastructure e Web dependem da Application/Domain).
+- Domain não depende de Infrastructure nem de Web.
 
 Fluxo de chamada em runtime:
 
@@ -113,7 +121,7 @@ Fluxo de chamada em runtime:
 
 Representação simplificada:
 
-Controllers -> Application UseCases -> Application Ports -> Infrastructure Adapters -> Database
+Web Controllers -> Application UseCases -> Application Ports -> Infrastructure Adapters -> Database
 
 ---
 
@@ -159,13 +167,26 @@ O `NpgsqlDataSource` ser registrado independentemente do provider ativo é inten
 ## Estrutura de Pastas (Backend)
 
 API/
-- Core/
+- Domain/
   - Entities/
     - AppUser.cs
+  - Exceptions/
+    - DomainException.cs
+    - UserAlreadyExistsException.cs
+    - InvalidCredentialsException.cs
+  - Services/
+    - PasswordService.cs
 - Application/
   - Ports/
-    - IUserRepository.cs
+    - Persistence/
+      - IUserRepository.cs
+      - IAccountRepository.cs
+    - External/
+      - IEmailService.cs
+      - ILoggerPort.cs
   - UseCases/
+    - Account/
+      - CreateAccountUseCase.cs
     - Users/
       - CreateUserUseCase.cs
       - GetUserByIdUseCase.cs
@@ -173,38 +194,39 @@ API/
       - DeleteUserUseCase.cs
   - ApplicationServiceExtensions.cs
 - Infrastructure/
-  - Configuration/
-    - PersistenceOptions.cs
-    - SeedDataOptions.cs
+  - External/
+    - EmailService.cs
+    - LoggerPortAdapter.cs
   - MongoDb/
     - Configuration/
       - MongoDbOptions.cs
+      - SeedDataOptions.cs
     - Persistence/
       - MongoUserRepository.cs
       - MongoAccountRepository.cs
     - Users/
-      - MongoDbUsersModuleExtensions.cs
       - MongoDbUsersInitializationExtensions.cs
-    - Accounts/
-      - MongoDbAccountsModuleExtensions.cs
-      - MongoDbAccountsInitializationExtensions.cs
-    - MongoDbServiceExtensions.cs
-    - MongoDbInitializationExtensions.cs
     - MongoDbMappingsExtensions.cs
   - PostgreSql/
     - Persistence/
       - PostgreSqlMigrationRunner.cs
-    - Subscriptions/
-      - PostgreSqlSubscriptionsModuleExtensions.cs
-    - PostgreSqlServiceExtensions.cs
-    - PostgreSqlInitializationExtensions.cs
     - Migrations/
       - (arquivos .sql de migrations futuras)
   - InfrastructureServiceExtensions.cs
   - InfrastructureInitializationExtensions.cs
-- Controllers/
-  - UsersController.cs
-  - WeatherForecastController.cs
+- Web/
+  - Controllers/
+    - BaseApiController.cs
+    - UsersController.cs
+    - AccountController.cs
+  - Responses/
+    - UserResponse.cs
+    - AccountResponse.cs
+  - Mappers/
+    - EntityToResponseMapper.cs
+  - ExceptionHandling/
+    - ApiExceptionFilter.cs
+  - ApiResponse.cs
 - Program.cs
 
 ---
@@ -220,8 +242,9 @@ Endpoints:
 - GET /api/users
 - DELETE /api/users/{id}
 
-Controller responsável:
-- API/Controllers/UsersController.cs
+Controllers responsáveis:
+- API/Web/Controllers/UsersController.cs
+- API/Web/Controllers/AccountController.cs
 
 ---
 
@@ -306,10 +329,10 @@ Observação:
 
 Para manter o desenho limpo conforme o projeto cresce:
 
-1. Core não deve depender de ASP.NET, EF Core ou bibliotecas de autenticação.
+1. Domain não deve depender de ASP.NET, EF Core ou bibliotecas de autenticação.
 2. Application não deve depender de detalhes de transporte HTTP.
 3. Controllers não devem conter regras de negócio.
-4. Infraestrutura não deve vazar tipos técnicos para Core/Application.
+4. Infraestrutura não deve vazar tipos técnicos para Domain/Application.
 5. Entidades de usuário e exercícios permanecem no MongoDB. Não criar tabelas espelho no PostgreSQL.
 6. Entidades de pagamento e assinatura pertencem ao PostgreSQL. Não armazenar no MongoDB.
 
@@ -317,7 +340,7 @@ Para manter o desenho limpo conforme o projeto cresce:
 
 ## Como Evoluir para Múltiplas Estratégias de Autenticação (Sem Implementar Agora)
 
-A estrutura atual já permite evoluir com baixo impacto no core.
+A estrutura atual já permite evoluir com baixo impacto no domínio.
 
 Estratégia recomendada:
 
@@ -333,26 +356,26 @@ Estratégia recomendada:
 4. Manter controllers apenas como orquestradores HTTP
 - Entradas e saídas web sem regra de negócio
 
-Com isso, trocar ou adicionar estratégia de autenticação passa a ser operação de adaptador/registro de DI, não de core.
+Com isso, trocar ou adicionar estratégia de autenticação passa a ser operação de adaptador/registro de DI, não de domínio.
 
 ---
 
 ## Melhorias Arquiteturais Implementadas (v2)
 
 ### ✅ 1. DTOs de Resposta
-- **Arquivos**: `Application/DTOs/Responses/UserResponse.cs`, `AccountResponse.cs`
-- **Benefício**: Previne vazamento de entidades do core para clientes HTTP
+- **Arquivos**: `Web/Responses/UserResponse.cs`, `AccountResponse.cs`
+- **Benefício**: Previne vazamento de entidades do domínio para clientes HTTP
 - **Padrão**: `record UserResponse(string Id, string Email, string Displayname)`
 
 ### ✅ 2. Exception Handling Centralizado
-- **Arquivo**: `Infrastructure/Http/Filters/ApiExceptionFilter.cs`
+- **Arquivo**: `Web/ExceptionHandling/ApiExceptionFilter.cs`
 - **Benefício**: Traduz `DomainException` → HTTP 400, `UserAlreadyExistsException` → 409, etc.
 - **Aplicação**: Registrado globalmente em `Program.cs` via `options.Filters.Add<ApiExceptionFilter>()`
 
-### ✅ 3. Application Services (Orquestração)
-- **Arquivos**: `Application/Services/UserApplicationService.cs`, `AccountApplicationService.cs`
-- **Benefício**: Orquestra múltiplos use cases e integra com ports externos (email, logger)
-- **Padrão**: Uma service por contexto de negócio (Users, Accounts, etc.)
+### ✅ 3. Use Cases Diretos a Partir da Web
+- **Arquivos**: `Web/Controllers/UsersController.cs`, `AccountController.cs`
+- **Benefício**: Remove camada intermediária desnecessária e mantém a borda HTTP fina
+- **Padrão**: Controller chama use case, e o use case orquestra as portas necessárias
 
 ### ⏳ 4. Value Objects (YAGNI - Remover)
 - **Status**: Removido (não utilizado no MVP)
@@ -360,23 +383,23 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 - **Padrão**: Será record imutável com factory method `Create()`
 
 ### ✅ 5. Domain Services
-- **Arquivo**: `Core/DomainServices/PasswordService.cs`
+- **Arquivo**: `Domain/Services/PasswordService.cs`
 - **Benefício**: Centraliza lógica criptográfica (HMACSHA512) em uma única responsabilidade
-- **Uso**: Injetado nos use cases para hash/verificação de senhas
+- **Uso**: Chamado diretamente pelos use cases para hash/verificação de senhas
 
 ### ✅ 6. Output Ports (Abstrações)
-- **Arquivos**: `Application/Ports/IEmailService.cs`, `ILoggerPort.cs`
+- **Arquivos**: `Application/Ports/External/IEmailService.cs`, `ILoggerPort.cs`
 - **Benefício**: Desacopla Application de implementações técnicas (SMTP, file logging, etc.)
-- **Implementações**: `Infrastructure/Services/EmailService.cs`, `LoggerPortAdapter.cs`
+- **Implementações**: `Infrastructure/External/EmailService.cs`, `LoggerPortAdapter.cs`
 
 ### ✅ 7. Unified Response Envelope
-- **Arquivo**: `Infrastructure/Http/ApiResponse.cs`
+- **Arquivo**: `Web/ApiResponse.cs`
 - **Benefício**: Garante consistência em TODAS as respostas HTTP
 - **Estrutura**: `{ Success: bool, Data?: T, ErrorMessage?: string, ErrorCode?: string }`
 - **Métodos**: `ApiResponse<T>.SuccessResponse(data)`, `ErrorResponse(message, code)`
 
 ### ✅ 8. Domain Exceptions
-- **Arquivos**: `Core/Exceptions/DomainException.cs`, `UserAlreadyExistsException.cs`, `InvalidCredentialsException.cs`
+- **Arquivos**: `Domain/Exceptions/DomainException.cs`, `UserAlreadyExistsException.cs`, `InvalidCredentialsException.cs`
 - **Benefício**: Distingue erros de negócio (esperados) de erros técnicos
 - **Uso**: Lançadas pelos use cases, capturadas pelo exception filter
 
@@ -399,9 +422,9 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 
 ### ✅ 12. Namespaces Padronizados
 - **Convenção**: `API.{Camada}.{Contexto}.{Função}`
-  - `API.Core.DomainServices`
-  - `API.Application.Services`
-  - `API.Infrastructure.Http.Filters`
+  - `API.Domain.Services`
+  - `API.Application.UseCases.Users`
+  - `API.Web.ExceptionHandling`
   - `API.Infrastructure.MongoDb.Users`
 - **Benefício**: Fácil navegar e entender responsabilidade de cada arquivo
 
@@ -413,11 +436,11 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 HTTP Request (POST /api/users)
     ↓
 UsersController (thin adapter)
-    ↓
-UserApplicationService (orquestration)
-    ├→ CreateUserUseCase (business logic)
-    │   ├→ Email.Create() (value object validation)
-    │   ├→ PasswordService.ComputePasswordHash() (domain service)
+  ↓
+CreateUserUseCase (business logic)
+  ├→ PasswordService.ComputePasswordHash() (domain service)
+  ├→ IUserRepository (output port)
+  └→ IEmailService (output port)
     │   └→ IUserRepository.AddAsync() (port)
     │
     └→ IEmailService.SendWelcomeEmailAsync() (external port)
@@ -442,9 +465,9 @@ HTTP Response (200 + JSON)
    - Implementar em `Infrastructure/Authentication/JwtTokenProvider.cs`
    - Adicionar use case de login que valida credenciais
 
-2. **Expandir Application Services**
-   - Criar `AccountApplicationService` completo (ainda apenas CreateAccountUseCase)
-   - Adicionar `SubscriptionApplicationService` quando PostgreSQL entrar em uso
+2. **Expandir use cases por contexto**
+  - Criar login, refresh e recuperação de senha em `Application/UseCases/Account/`
+  - Adicionar casos de uso de assinatura quando PostgreSQL entrar em uso
 
 3. **Implementar email real**
    - Substituir `EmailService.cs` com integração SendGrid ou AWS SES

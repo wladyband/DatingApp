@@ -1,19 +1,24 @@
+using API.Application.DTOs.Requests.Account;
+using API.Application.Ports.External;
 using API.Application.Ports.Persistence;
-using API.Core.DomainServices;
-using API.Core.Exceptions;
+using API.Domain.Services;
+using API.Domain.Entities;
+using API.Domain.Exceptions;
 
 namespace API.Application.UseCases.Account;
 
 public class CreateAccountUseCase
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IEmailService _emailService;
 
-    public CreateAccountUseCase(IAccountRepository accountRepository)
+    public CreateAccountUseCase(IAccountRepository accountRepository, IEmailService emailService)
     {
         _accountRepository = accountRepository;
+        _emailService = emailService;
     }
 
-    public async Task<Core.Entities.AppUser> ExecuteAsync(CreateAccountInput input)
+    public async Task<AppUser> ExecuteAsync(CreateAccountInput input)
     {
         if (input == null)
             throw new ArgumentNullException(nameof(input));
@@ -35,7 +40,7 @@ public class CreateAccountUseCase
 
         var (computedHash, salt) = PasswordService.ComputePasswordHash(input.Password);
 
-        var user = new Core.Entities.AppUser
+        var user = new AppUser
         {
             Email = normalizedEmail,
             Displayname = input.Displayname.Trim(),
@@ -44,14 +49,9 @@ public class CreateAccountUseCase
         };
 
         await _accountRepository.AddAsync(user);
+        await _emailService.SendWelcomeEmailAsync(user.Email, user.Displayname);
 
         return user;
     }
 }
-
-public record CreateAccountInput(
-     string Email,
-     string Displayname,
-     string Password
- );
 

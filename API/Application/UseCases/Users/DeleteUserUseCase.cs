@@ -1,5 +1,5 @@
 using API.Application.Ports.Persistence;
-using API.Core.Exceptions;
+using API.Domain.Exceptions;
 
 namespace API.Application.UseCases.Users;
 

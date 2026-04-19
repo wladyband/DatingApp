@@ -1,6 +1,6 @@
 using API.Application;
 using API.Infrastructure;
-using API.Infrastructure.Http.Filters;
+using API.Web.ExceptionHandling;
 using API.Infrastructure.External;
 using API.Application.Ports.External;
 

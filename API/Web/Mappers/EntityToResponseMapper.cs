@@ -1,13 +1,13 @@
-using API.Application.DTOs.Responses;
-using API.Core.Entities;
+using API.Domain.Entities;
+using API.Web.Responses;
 
-namespace API.Application.Services;
+namespace API.Web.Mappers;
 
 /// <summary>
 /// Mapeador de Entities para DTOs de resposta.
 /// Centraliza a lógica de transformação entre camadas.
 /// </summary>
-public static class EntityToDtoMapper
+public static class EntityToResponseMapper
 {
     public static UserResponse ToUserResponse(this AppUser user) =>
         new(

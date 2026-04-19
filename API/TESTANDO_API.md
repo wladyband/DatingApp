@@ -174,7 +174,7 @@ SQLite (Banco de Dados)
 
 ```
 API/
-├── Controllers/
+├── Web/
 │   ├── WeatherForecastController.cs  (Lógica simples)
 │   └── UsersController.cs             (Usa Use Cases) ← ⭐
 ├── Application/

@@ -1,4 +1,4 @@
-using API.Core.Entities;
+using API.Domain.Entities;
 
 namespace API.Application.Ports.Persistence;
 

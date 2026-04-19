@@ -1,6 +1,6 @@
 using API.Application.Ports.Persistence;
-using API.Core.Entities;
-using API.Core.Exceptions;
+using API.Domain.Entities;
+using API.Domain.Exceptions;
 
 namespace API.Application.UseCases.Users;
 

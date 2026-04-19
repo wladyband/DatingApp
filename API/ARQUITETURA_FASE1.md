@@ -3,15 +3,15 @@
 ## O Que Foi Criado
 
 ### 1. **Camada de Ports (Abstração)**
-📁 `Application/Ports/IUserRepository.cs`
+📁 `Application/Ports/Persistence/IUserRepository.cs`
 - Define o contrato entre o domínio e a persistência
 - Isolado de qualquer implementação específica (EF Core, SQL, etc)
 - É a "porta" de saída para dados
 
 ### 2. **Adapter de Saída (Persistência)**
-📁 `Infrastructure/Persistence/UserRepository.cs`
-- Implementação concreta usando Entity Framework Core
-- Comunica com SQLite através do `AppDbContext`
+📁 `Infrastructure/MongoDb/Persistence/MongoUserRepository.cs`
+- Implementação concreta usando MongoDB
+- Comunica com a collection configurada em `MongoDbOptions`
 - Implementa as operações CRUD
 
 ### 3. **Injeção de Dependência**
@@ -19,10 +19,12 @@
 - Registra `IUserRepository` → `UserRepository` no container DI
 - Garante que todas as dependências sejam injetadas corretamente
 
-### 4. **Use Cases (Exemplos)**
+### 4. **Use Cases**
 📁 `Application/UseCases/Users/`
 - `CreateUserUseCase.cs`: Demonstra como a lógica de negócio será separada
-- `GetUserByIdUseCase.cs`: Segundo exemplo do padrão
+- `GetUserByIdUseCase.cs`: Busca por id
+- `GetAllUsersUseCase.cs`: Lista usuários
+- `DeleteUserUseCase.cs`: Remove usuário
 - Contêm validações de negócio e orquestram as operações
 
 ---
@@ -31,23 +33,37 @@
 
 ```
 API/
-├── Controllers/                   # Entrada (HTTP)
-│   └── WeatherForecastController.cs
-├── Core/                          # DOMÍNIO (Por enquanto em Entities)
-│   └── Entities/
-│       └── AppUser.cs
+├── Domain/                        # DOMÍNIO
+│   ├── Entities/
+│   │   └── AppUser.cs
+│   ├── Exceptions/
+│   └── Services/
 ├── Application/                   # CASOS DE USO
 │   ├── Ports/                     # Abstrações (Contratos)
-│   │   └── IUserRepository.cs
+│   │   ├── Persistence/
+│   │   │   ├── IUserRepository.cs
+│   │   │   └── IAccountRepository.cs
+│   │   └── External/
+│   │       ├── IEmailService.cs
+│   │       └── ILoggerPort.cs
 │   └── UseCases/                  # Orquestração de negócio
+│       ├── Account/
+│       │   └── CreateAccountUseCase.cs
 │       └── Users/
 │           ├── CreateUserUseCase.cs
-│           └── GetUserByIdUseCase.cs
+│           ├── GetUserByIdUseCase.cs
+│           ├── GetAllUsersUseCase.cs
+│           └── DeleteUserUseCase.cs
 ├── Infrastructure/                # ADAPTADORES DE SAÍDA
-│   └── Persistence/
-│       └── UserRepository.cs
-├── Data/                          # EF Core
-│   └── AppDbContext.cs
+│   ├── External/
+│   ├── MongoDb/
+│   └── PostgreSql/
+├── Web/                           # ADAPTADORES DE ENTRADA
+│   ├── Controllers/
+│   ├── Responses/
+│   ├── Mappers/
+│   ├── ExceptionHandling/
+│   └── ApiResponse.cs
 └── Program.cs
 ```
 
@@ -55,9 +71,9 @@ API/
 
 ## ✨ Benefícios Conseguidos Nesta Fase
 
-✅ **Inversão de Dependência**: Controllers não falam diretamente com EF Core  
+✅ **Inversão de Dependência**: Controllers não falam diretamente com banco ou adaptadores  
 ✅ **Testabilidade**: Você pode mockar `IUserRepository` em testes  
-✅ **Flexibilidade**: Trocar SQLite por PostgreSQL é só criar novo adapter  
+✅ **Flexibilidade**: Trocar MongoDB por outro adapter é só implementar a mesma port  
 ✅ **Separação de Conceitos**: Lógica de negócio isolada em use cases  
 ✅ **Sem quebras**: Código existente continua funcionando!
 
@@ -65,50 +81,40 @@ API/
 
 ## 🔄 Próximas Fases (Quando Estiver Pronto)
 
-### Fase 2: Refatorar Controllers
-- Usar os Use Cases em vez de lógica direta
-- Controllers ficam finos (apenas entrada/orquestração)
-
-### Fase 3: Criar Application Services
-- Camada que orquestra múltiplos use cases se necessário
-- DTOs para padronizar requisições/respostas
-
-### Fase 4: Validação e Exceções Customizadas
-- Criar camada de exceções de negócio
-- Centralizar tratamento de erros
-
-### Fase 5: Reorganizar Pastas Completas
-- Mover `Entities` para `Core/Domain`
-- Definir `Core` como projeto separado (opcional)
+### Situação atual
+- Controllers finos em `Web/Controllers`
+- DTOs e envelope HTTP em `Web/`
+- Exceções de domínio centralizadas em `Domain/Exceptions`
+- Tratamento HTTP centralizado em `Web/ExceptionHandling`
+- Estrutura física já alinhada com a hexagonal
 
 ---
 
 ## 🚀 Como Usar Agora
 
-Os use cases estão prontos para serem chamados:
+Os use cases estão prontos para serem chamados a partir dos controllers:
 
 ```csharp
 // Em um controller (exemplo)
 [HttpPost]
 public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
 {
-    var useCase = new CreateUserUseCase(_userRepository);
+    var useCase = new CreateUserUseCase(_userRepository, _emailService);
     var user = await useCase.ExecuteAsync(input);
     return Created($"/users/{user.Id}", user);
 }
 ```
 
-Ou registre no DI e injete: `builder.Services.AddScoped<CreateUserUseCase>();`
+Ou registre no DI e injete via `AddApplicationServices()`.
 
 ---
 
 ## 📋 Checklist da Fase 1
 
-- ✅ Interface `IUserRepository` criada
-- ✅ Implementação `UserRepository` com EF Core
-- ✅ Registrado no DI (Program.cs)
-- ✅ Use cases de exemplo criados
-- ✅ Sem quebras no código existente
-- ⏭️ Próximo: Refatorar um controller para usar um use case
+- ✅ Interfaces de ports organizadas por tipo
+- ✅ Adapters MongoDB registrados no DI
+- ✅ Use cases e camada Web separados
+- ✅ Sem quebras lógicas no código
+- ✅ Estrutura física alinhada com a hexagonal
 
 Quando estiver pronto, me avise para passarmos para a Fase 2! 🎯

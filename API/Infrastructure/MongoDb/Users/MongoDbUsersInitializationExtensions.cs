@@ -1,4 +1,4 @@
-using API.Core.Entities;
+using API.Domain.Entities;
 using API.Infrastructure.MongoDb.Configuration;
 using MongoDB.Driver;
 

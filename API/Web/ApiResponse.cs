@@ -1,4 +1,4 @@
-namespace API.Infrastructure.Http;
+namespace API.Web;
 
 /// <summary>
 /// Envelope padrão para todas as respostas HTTP da API.

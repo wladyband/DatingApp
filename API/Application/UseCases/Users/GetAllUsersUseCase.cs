@@ -1,5 +1,5 @@
 using API.Application.Ports.Persistence;
-using API.Core.Entities;
+using API.Domain.Entities;
 
 namespace API.Application.UseCases.Users;
 

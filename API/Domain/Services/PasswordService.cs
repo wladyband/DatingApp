@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace API.Core.DomainServices;
+namespace API.Domain.Services;
 
 /// <summary>
 /// Domain Service para gerenciar hash e salt de senhas.

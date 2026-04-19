@@ -1,4 +1,4 @@
-namespace API.Core.Exceptions;
+namespace API.Domain.Exceptions;
 
 /// <summary>
 /// Exceção lançada quando um usuário com o email já existe.

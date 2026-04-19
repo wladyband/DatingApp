@@ -1,4 +1,4 @@
-namespace API.Application.DTOs.Responses;
+namespace API.Web.Responses;
 
 /// <summary>
 /// DTO de resposta para usuário. Expõe apenas o necessário para o cliente.

@@ -1,4 +1,4 @@
-namespace API.Core.Entities;
+namespace API.Domain.Entities;
 
 public class AppUser
 {

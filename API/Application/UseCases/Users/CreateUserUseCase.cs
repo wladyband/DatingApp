@@ -1,7 +1,9 @@
+using API.Application.DTOs.Requests.Users;
+using API.Application.Ports.External;
 using API.Application.Ports.Persistence;
-using API.Core.Entities;
-using API.Core.DomainServices;
-using API.Core.Exceptions;
+using API.Domain.Entities;
+using API.Domain.Services;
+using API.Domain.Exceptions;
 
 namespace API.Application.UseCases.Users;
 
@@ -12,10 +14,12 @@ namespace API.Application.UseCases.Users;
 public class CreateUserUseCase
 {
     private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService;
 
-    public CreateUserUseCase(IUserRepository userRepository)
+    public CreateUserUseCase(IUserRepository userRepository, IEmailService emailService)
     {
         _userRepository = userRepository;
+        _emailService = emailService;
     }
 
     public async Task<AppUser> ExecuteAsync(CreateUserInput input)
@@ -44,14 +48,10 @@ public class CreateUserUseCase
         };
 
         await _userRepository.AddAsync(user);
+        await _emailService.SendWelcomeEmailAsync(user.Email, user.Displayname);
 
         return user;
     }
 }
-
-/// <summary>
-/// DTO (Data Transfer Object) para entrada do use case.
-/// </summary>
-public record CreateUserInput(string Email, string Displayname, string Password);
 
 

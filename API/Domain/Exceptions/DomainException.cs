@@ -1,4 +1,4 @@
-namespace API.Core.Exceptions;
+namespace API.Domain.Exceptions;
 
 /// <summary>
 /// Exceção base para todos os erros de domínio.

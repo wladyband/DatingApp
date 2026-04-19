@@ -1,4 +1,4 @@
-using API.Core.Entities;
+using API.Domain.Entities;
 using MongoDB.Bson.Serialization;
 
 namespace API.Infrastructure.MongoDb;
