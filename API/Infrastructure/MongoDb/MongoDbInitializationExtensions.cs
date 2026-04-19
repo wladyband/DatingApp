@@ -1,6 +1,6 @@
-using API.Infrastructure.Configuration;
 using API.Infrastructure.MongoDb.Accounts;
 using API.Infrastructure.MongoDb.Users;
+using API.Infrastructure.MongoDb.Configuration;
 
 namespace API.Infrastructure.MongoDb;
 

@@ -337,16 +337,126 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 
 ---
 
-## Como Adicionar uma Entidade de Pagamento (PostgreSQL)
+## Melhorias Arquiteturais Implementadas (v2)
 
-Quando o domínio de pagamentos for desenvolvido:
+### ✅ 1. DTOs de Resposta
+- **Arquivos**: `Application/DTOs/Responses/UserResponse.cs`, `AccountResponse.cs`
+- **Benefício**: Previne vazamento de entidades do core para clientes HTTP
+- **Padrão**: `record UserResponse(string Id, string Email, string Displayname)`
 
-1. Criar a entidade em Core (ex: `Core/Entities/Subscription.cs`)
-2. Criar o port em Application (ex: `Application/Ports/ISubscriptionRepository.cs`)
-3. Criar a migration SQL em `Infrastructure/PostgreSql/Migrations/`
-   - Exemplo: `202610010001_create_subscriptions.sql`
-4. Criar o repositório concreto em Infrastructure (ex: `PostgreSqlSubscriptionRepository.cs`)
-5. Registrar no DI em `InfrastructureServiceExtensions.cs`
+### ✅ 2. Exception Handling Centralizado
+- **Arquivo**: `Infrastructure/Http/Filters/ApiExceptionFilter.cs`
+- **Benefício**: Traduz `DomainException` → HTTP 400, `UserAlreadyExistsException` → 409, etc.
+- **Aplicação**: Registrado globalmente em `Program.cs` via `options.Filters.Add<ApiExceptionFilter>()`
+
+### ✅ 3. Application Services (Orquestração)
+- **Arquivos**: `Application/Services/UserApplicationService.cs`, `AccountApplicationService.cs`
+- **Benefício**: Orquestra múltiplos use cases e integra com ports externos (email, logger)
+- **Padrão**: Uma service por contexto de negócio (Users, Accounts, etc.)
+
+### ⏳ 4. Value Objects (YAGNI - Remover)
+- **Status**: Removido (não utilizado no MVP)
+- **Reintroduzir quando**: Email/Displayname tiverem regras complexas ou múltiplos agregados compartilharem validação
+- **Padrão**: Será record imutável com factory method `Create()`
+
+### ✅ 5. Domain Services
+- **Arquivo**: `Core/DomainServices/PasswordService.cs`
+- **Benefício**: Centraliza lógica criptográfica (HMACSHA512) em uma única responsabilidade
+- **Uso**: Injetado nos use cases para hash/verificação de senhas
+
+### ✅ 6. Output Ports (Abstrações)
+- **Arquivos**: `Application/Ports/IEmailService.cs`, `ILoggerPort.cs`
+- **Benefício**: Desacopla Application de implementações técnicas (SMTP, file logging, etc.)
+- **Implementações**: `Infrastructure/Services/EmailService.cs`, `LoggerPortAdapter.cs`
+
+### ✅ 7. Unified Response Envelope
+- **Arquivo**: `Infrastructure/Http/ApiResponse.cs`
+- **Benefício**: Garante consistência em TODAS as respostas HTTP
+- **Estrutura**: `{ Success: bool, Data?: T, ErrorMessage?: string, ErrorCode?: string }`
+- **Métodos**: `ApiResponse<T>.SuccessResponse(data)`, `ErrorResponse(message, code)`
+
+### ✅ 8. Domain Exceptions
+- **Arquivos**: `Core/Exceptions/DomainException.cs`, `UserAlreadyExistsException.cs`, `InvalidCredentialsException.cs`
+- **Benefício**: Distingue erros de negócio (esperados) de erros técnicos
+- **Uso**: Lançadas pelos use cases, capturadas pelo exception filter
+
+### ✅ 9. Modularização por Contexto
+- **Estrutura**: 
+  - `Infrastructure/MongoDb/Users/` — módulo de usuários
+  - `Infrastructure/MongoDb/Accounts/` — módulo de contas
+  - `Infrastructure/PostgreSql/Subscriptions/` — módulo de assinaturas (futuro)
+- **Benefício**: Cada contexto autossuficiente com suas repositories, extensions e inicialização
+
+### ✅ 10. Configuration Organizada
+- **Movimento**: `Configuration/SeedDataOptions.cs` → `MongoDb/Configuration/SeedDataOptions.cs`
+- **Benefício**: Configuração agora próxima do adapter que a usa
+- **Padrão**: Cada provider tem sua própria pasta de configuração
+
+### ✅ 11. Cleanup
+- **Removido**: `WeatherForecast.cs`, `WeatherForecastController.cs`
+- **Removido**: Pasta `Infrastructure/Configuration/` (vazia após mover SeedDataOptions)
+- **Benefício**: Projeto sem placeholders, estrutura focada em negócio
+
+### ✅ 12. Namespaces Padronizados
+- **Convenção**: `API.{Camada}.{Contexto}.{Função}`
+  - `API.Core.DomainServices`
+  - `API.Application.Services`
+  - `API.Infrastructure.Http.Filters`
+  - `API.Infrastructure.MongoDb.Users`
+- **Benefício**: Fácil navegar e entender responsabilidade de cada arquivo
+
+---
+
+## Fluxo de Requisição Moderno (Após Melhorias)
+
+```
+HTTP Request (POST /api/users)
+    ↓
+UsersController (thin adapter)
+    ↓
+UserApplicationService (orquestration)
+    ├→ CreateUserUseCase (business logic)
+    │   ├→ Email.Create() (value object validation)
+    │   ├→ PasswordService.ComputePasswordHash() (domain service)
+    │   └→ IUserRepository.AddAsync() (port)
+    │
+    └→ IEmailService.SendWelcomeEmailAsync() (external port)
+    
+    ↓
+ApiExceptionFilter (centralized exception handling)
+    ├ Domain exceptions → HTTP 400/409 + ErrorResponse
+    └ Technical exceptions → HTTP 500 + ErrorResponse
+    
+    ↓
+ApiResponse<UserResponse> (unified envelope)
+    ↓
+HTTP Response (200 + JSON)
+```
+
+---
+
+## Próximos Passos Recomendados
+
+1. **Implementar autenticação JWT**
+   - Criar `Application/Ports/ITokenProvider.cs`
+   - Implementar em `Infrastructure/Authentication/JwtTokenProvider.cs`
+   - Adicionar use case de login que valida credenciais
+
+2. **Expandir Application Services**
+   - Criar `AccountApplicationService` completo (ainda apenas CreateAccountUseCase)
+   - Adicionar `SubscriptionApplicationService` quando PostgreSQL entrar em uso
+
+3. **Implementar email real**
+   - Substituir `EmailService.cs` com integração SendGrid ou AWS SES
+   - Adicionar templates de email para boas-vindas, reset de senha, etc.
+
+4. **Adicionar logging estruturado**
+   - Configurar Serilog em `LoggerPortAdapter.cs`
+   - Adicionar logs em points críticos (criação de usuário, falhas de autenticação)
+
+5. **Criptografia de dados sensíveis**
+   - Adicionar Value Object para dados criptografados (ex: `EncryptedEmail.cs`)
+   - Implementar port `IEncryptionService.cs` em infraestrutura
 
 A migration será aplicada automaticamente no próximo startup.
 

@@ -1,12 +1,12 @@
-using System;
 using API.Application.Ports;
-using System.Security.Cryptography;
+using API.Core.DomainServices;
+using API.Core.Exceptions;
+
 namespace API.Application.UseCases.Account;
 
 public class CreateAccountUseCase
 {
     private readonly IAccountRepository _accountRepository;
-
 
     public CreateAccountUseCase(IAccountRepository accountRepository)
     {
@@ -19,28 +19,27 @@ public class CreateAccountUseCase
             throw new ArgumentNullException(nameof(input));
 
         if (string.IsNullOrWhiteSpace(input.Email))
-            throw new ArgumentException("Email é obrigatório.", nameof(input.Email));
+            throw new DomainException("Email é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(input.Displayname))
-            throw new ArgumentException("Displayname é obrigatório.", nameof(input.Displayname));
+            throw new DomainException("Displayname é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(input.Password))
-            throw new ArgumentException("Senha é obrigatória.", nameof(input.Password));
+            throw new DomainException("Senha é obrigatória.");
 
         var normalizedEmail = input.Email.Trim();
         var existingUser = await _accountRepository.GetByEmailAsync(normalizedEmail);
         if (existingUser != null)
-            throw new InvalidOperationException("Um usuário com este email já existe.");
+            throw new UserAlreadyExistsException(normalizedEmail);
 
-        using var hmac = new HMACSHA512();
-        var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input.Password));
+        var (computedHash, salt) = PasswordService.ComputePasswordHash(input.Password);
 
         var user = new Core.Entities.AppUser
         {
             Email = normalizedEmail,
             Displayname = input.Displayname.Trim(),
             PasswordHash = computedHash,
-            PasswordSalt = hmac.Key
+            PasswordSalt = salt
         };
 
         await _accountRepository.AddAsync(user);

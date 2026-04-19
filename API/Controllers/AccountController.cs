@@ -1,32 +1,26 @@
+using API.Application.Services;
 using API.Application.UseCases.Account;
+using API.Infrastructure.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class AccountController : BaseApiController
 {
-    private readonly CreateAccountUseCase _createAccountUseCase;
+    private readonly AccountApplicationService _accountApplicationService;
 
-    public AccountController(CreateAccountUseCase createAccountUseCase)
+    public AccountController(AccountApplicationService accountApplicationService)
     {
-        _createAccountUseCase = createAccountUseCase;
+        _accountApplicationService = accountApplicationService;
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateAccount([FromBody] CreateAccountInput input)
     {
-        try
-        {
-            var user = await _createAccountUseCase.ExecuteAsync(input);
-            return Created($"/api/account/{user.Id}", user);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
+        var user = await _accountApplicationService.CreateAccountAsync(input);
+        var response = user.ToAccountResponse();
+        return Created($"/api/account/{user.Id}", ApiResponse<object>.SuccessResponse(response));
     }
 }

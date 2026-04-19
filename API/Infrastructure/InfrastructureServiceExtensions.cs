@@ -1,7 +1,8 @@
-using API.Infrastructure.Configuration;
 using API.Infrastructure.MongoDb;
 using API.Infrastructure.MongoDb.Configuration;
 using API.Infrastructure.PostgreSql;
+using API.Infrastructure.PostgreSql.Configuration;
+using SeedDataOptions = API.Infrastructure.MongoDb.Configuration.SeedDataOptions;
 
 namespace API.Infrastructure;
 

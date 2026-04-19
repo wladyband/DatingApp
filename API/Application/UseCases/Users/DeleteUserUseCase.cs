@@ -1,4 +1,5 @@
 using API.Application.Ports;
+using API.Core.Exceptions;
 
 namespace API.Application.UseCases.Users;
 
@@ -14,7 +15,7 @@ public class DeleteUserUseCase
     public async Task<bool> ExecuteAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
-            throw new ArgumentException("ID do usuário é obrigatório.");
+            throw new DomainException("ID do usuário é obrigatório.");
 
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)

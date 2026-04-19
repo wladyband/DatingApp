@@ -1,5 +1,6 @@
 using API.Application.Ports;
 using API.Core.Entities;
+using API.Core.Exceptions;
 
 namespace API.Application.UseCases.Users;
 
@@ -19,7 +20,7 @@ public class GetUserByIdUseCase
     public async Task<AppUser?> ExecuteAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
-            throw new ArgumentException("ID do usuário é obrigatório.");
+            throw new DomainException("ID do usuário é obrigatório.");
 
         return await _userRepository.GetByIdAsync(userId);
     }

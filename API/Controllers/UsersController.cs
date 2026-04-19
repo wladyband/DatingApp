@@ -1,31 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
+using API.Application.Services;
 using API.Application.UseCases.Users;
+using API.Infrastructure.Http;
 
 namespace API.Controllers;
 
 /// <summary>
 /// Controller de entrada (Adapter In) para gerenciar usuários.
-/// Mantém-se fino, apenas orquestrando chamadas aos use cases.
-/// A lógica de negócio está nos use cases.
+/// Mantém-se fino, apenas orquestrando chamadas aos application services.
 /// </summary>
-
+[Route("api/[controller]")]
+[ApiController]
 public class UsersController : BaseApiController
 {
-    private readonly CreateUserUseCase _createUserUseCase;
-    private readonly GetUserByIdUseCase _getUserByIdUseCase;
-    private readonly GetAllUsersUseCase _getAllUsersUseCase;
-    private readonly DeleteUserUseCase _deleteUserUseCase;
+    private readonly UserApplicationService _userApplicationService;
 
-    public UsersController(
-        CreateUserUseCase createUserUseCase,
-        GetUserByIdUseCase getUserByIdUseCase,
-        GetAllUsersUseCase getAllUsersUseCase,
-        DeleteUserUseCase deleteUserUseCase)
+    public UsersController(UserApplicationService userApplicationService)
     {
-        _createUserUseCase = createUserUseCase;
-        _getUserByIdUseCase = getUserByIdUseCase;
-        _getAllUsersUseCase = getAllUsersUseCase;
-        _deleteUserUseCase = deleteUserUseCase;
+        _userApplicationService = userApplicationService;
     }
 
     /// <summary>
@@ -34,22 +26,10 @@ public class UsersController : BaseApiController
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
-        // Postman: POST http://localhost:5000/api/users
-        // Body (raw JSON): { "email": "joao@example.com", "displayname": "Joao" }
-        try
-        {
-            var user = await _createUserUseCase.ExecuteAsync(input);
-
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
+        var user = await _userApplicationService.CreateUserAsync(input);
+        var response = user.ToUserResponse();
+        return CreatedAtAction(nameof(GetUserById), new { id = user.Id },
+            ApiResponse<object>.SuccessResponse(response));
     }
 
     /// <summary>
@@ -58,14 +38,12 @@ public class UsersController : BaseApiController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
-        // Postman: GET http://localhost:5000/api/users/{id}
-        // Exemplo: GET http://localhost:5000/api/users/SEU_ID_AQUI
-        var user = await _getUserByIdUseCase.ExecuteAsync(id);
-
+        var user = await _userApplicationService.GetUserByIdAsync(id);
         if (user == null)
-            return NotFound(new { error = "Usuário não encontrado" });
+            return NotFound(ApiResponse<object>.ErrorResponse("Usuário não encontrado", "USER_NOT_FOUND"));
 
-        return Ok(user);
+        var response = user.ToUserResponse();
+        return Ok(ApiResponse<object>.SuccessResponse(response));
     }
 
     /// <summary>
@@ -74,22 +52,20 @@ public class UsersController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        // Postman: GET http://localhost:5000/api/users
-        var users = await _getAllUsersUseCase.ExecuteAsync();
-        return Ok(users);
+        var users = await _userApplicationService.GetAllUsersAsync();
+        var responses = users.ToUserResponseList();
+        return Ok(ApiResponse<object>.SuccessResponse(responses));
     }
 
     /// <summary>
-    /// Deleta um usuário por ID.
+    /// Deleta um usuário.
     /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
-        // Postman: DELETE http://localhost:5000/api/users/{id}
-        // Exemplo: DELETE http://localhost:5000/api/users/SEU_ID_AQUI
-        var deleted = await _deleteUserUseCase.ExecuteAsync(id);
+        var deleted = await _userApplicationService.DeleteUserAsync(id);
         if (!deleted)
-            return NotFound(new { error = "Usuário não encontrado" });
+            return NotFound(ApiResponse.ErrorResponse("Usuário não encontrado", "USER_NOT_FOUND"));
 
         return NoContent();
     }

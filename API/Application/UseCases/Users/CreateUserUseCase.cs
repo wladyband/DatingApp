@@ -1,6 +1,7 @@
-using System.Security.Cryptography;
 using API.Application.Ports;
 using API.Core.Entities;
+using API.Core.DomainServices;
+using API.Core.Exceptions;
 
 namespace API.Application.UseCases.Users;
 
@@ -19,27 +20,21 @@ public class CreateUserUseCase
 
     public async Task<AppUser> ExecuteAsync(CreateUserInput input)
     {
-        // Validações de negócio podem ser adicionadas aqui
         if (string.IsNullOrWhiteSpace(input.Email))
-            throw new ArgumentException("Email é obrigatório.");
+            throw new DomainException("Email é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(input.Displayname))
-            throw new ArgumentException("Nome de exibição é obrigatório.");
+            throw new DomainException("Nome de exibição é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(input.Password))
-            throw new ArgumentException("Senha é obrigatória.");
+            throw new DomainException("Senha é obrigatória.");
 
-        // Verificar se o email já existe
         var existingUser = await _userRepository.GetByEmailAsync(input.Email);
         if (existingUser != null)
-            throw new InvalidOperationException("Um usuário com este email já existe.");
+            throw new UserAlreadyExistsException(input.Email);
 
-        // Gerar hash e salt da senha
-        using var hmac = new HMACSHA512();
-        var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input.Password));
-        var passwordSalt = hmac.Key;
+        var (passwordHash, passwordSalt) = PasswordService.ComputePasswordHash(input.Password);
 
-        // Criar novo usuário
         var user = new AppUser
         {
             Email = input.Email,
@@ -48,7 +43,6 @@ public class CreateUserUseCase
             PasswordSalt = passwordSalt
         };
 
-        // Persistir
         await _userRepository.AddAsync(user);
 
         return user;

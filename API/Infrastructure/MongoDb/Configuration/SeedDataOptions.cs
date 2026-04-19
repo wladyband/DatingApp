@@ -1,5 +1,9 @@
-namespace API.Infrastructure.Configuration;
+namespace API.Infrastructure.MongoDb.Configuration;
 
+/// <summary>
+/// Configurações para seed de dados em MongoDB.
+/// Específico do adapter MongoDB.
+/// </summary>
 public class SeedDataOptions
 {
     public const string SectionName = "SeedData";

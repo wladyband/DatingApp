@@ -1,6 +1,6 @@
-using API.Infrastructure.Configuration;
 using API.Infrastructure.MongoDb;
 using API.Infrastructure.PostgreSql;
+using API.Infrastructure.PostgreSql.Configuration;
 
 namespace API.Infrastructure;
 

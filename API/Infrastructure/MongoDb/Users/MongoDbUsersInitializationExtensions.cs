@@ -1,5 +1,4 @@
 using API.Core.Entities;
-using API.Infrastructure.Configuration;
 using API.Infrastructure.MongoDb.Configuration;
 using MongoDB.Driver;
 
