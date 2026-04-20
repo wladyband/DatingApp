@@ -3,6 +3,7 @@ using API.Infrastructure;
 using API.Infrastructure.External;
 using API.Application.Ports.External;
 using API.Web;
+using API.Web.ExceptionHandling;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,9 @@ app.UseSwaggerDocumentation();
 // Politica CORS ativa para origem do frontend em ambiente local.
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
     .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+
+// Garante payload de erro padrao para status sem corpo (ex.: 404/405/415).
+app.UseApiStatusCodeResponses();
 
 // Mapeia os endpoints dos controllers da API.
 app.MapControllers();

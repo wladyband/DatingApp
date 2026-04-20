@@ -20,13 +20,23 @@ public static class WebApiServiceExtensions
         {
             options.InvalidModelStateResponseFactory = context =>
             {
-                var problemDetails = new ValidationProblemDetails(context.ModelState)
+                var details = new
                 {
-                    Title = "Erro de validação.",
-                    Status = StatusCodes.Status400BadRequest
+                    traceId = context.HttpContext.TraceIdentifier,
+                    method = context.HttpContext.Request.Method,
+                    path = context.HttpContext.Request.Path.Value,
+                    errors = context.ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors.Select(e =>
+                                string.IsNullOrWhiteSpace(e.ErrorMessage)
+                                    ? "Valor inválido."
+                                    : e.ErrorMessage).ToArray())
                 };
 
-                return new BadRequestObjectResult(problemDetails);
+                return new BadRequestObjectResult(
+                    ApiResponse.ErrorResponse("Erro de validação na requisição.", "VALIDATION_ERROR", details));
             };
         });
 

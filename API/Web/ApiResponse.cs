@@ -8,7 +8,8 @@ public record ApiResponse<T>(
     bool Success,
     T? Data,
     string? ErrorMessage,
-    string? ErrorCode = null
+    string? ErrorCode = null,
+    object? Details = null
 )
 {
     /// <summary>
@@ -20,8 +21,8 @@ public record ApiResponse<T>(
     /// <summary>
     /// Cria resposta de erro.
     /// </summary>
-    public static ApiResponse<T> ErrorResponse(string message, string? code = null) =>
-        new(Success: false, Data: default, ErrorMessage: message, ErrorCode: code);
+    public static ApiResponse<T> ErrorResponse(string message, string? code = null, object? details = null) =>
+        new(Success: false, Data: default, ErrorMessage: message, ErrorCode: code, Details: details);
 }
 
 /// <summary>
@@ -30,7 +31,8 @@ public record ApiResponse<T>(
 public record ApiResponse(
     bool Success,
     string? ErrorMessage,
-    string? ErrorCode = null
+    string? ErrorCode = null,
+    object? Details = null
 )
 {
     /// <summary>
@@ -42,6 +44,6 @@ public record ApiResponse(
     /// <summary>
     /// Cria resposta de erro.
     /// </summary>
-    public static ApiResponse ErrorResponse(string message, string? code = null) =>
-        new(Success: false, ErrorMessage: message, ErrorCode: code);
+    public static ApiResponse ErrorResponse(string message, string? code = null, object? details = null) =>
+        new(Success: false, ErrorMessage: message, ErrorCode: code, Details: details);
 }
