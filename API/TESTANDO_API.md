@@ -1,5 +1,19 @@
 # Testando os Endpoints da API de Usuários
 
+## Swagger
+
+Com a configuração atual da API, você pode acessar o Swagger pelos links abaixo:
+
+- HTTP: http://localhost:5001/swagger
+- HTTPS: https://localhost:7023/swagger
+
+OpenAPI JSON:
+
+- HTTP: http://localhost:5001/swagger/v1/swagger.json
+- HTTPS: https://localhost:7023/swagger/v1/swagger.json
+
+> Observação: o Swagger só é habilitado em ambiente Development.
+
 ## Endpoints Disponíveis
 
 A aplicação agora possui 4 endpoints para gerenciar usuários, seguindo a arquitetura hexagonal.
