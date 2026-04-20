@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\DTOs\Requests\Login\" />
     <Folder Include="Application\UseCases\Account\" />
+    <Folder Include="Application\UseCases\Login\" />
   </ItemGroup>
 
 </Project>

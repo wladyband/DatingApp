@@ -3,6 +3,7 @@ using API.Infrastructure;
 using API.Web.ExceptionHandling;
 using API.Infrastructure.External;
 using API.Application.Ports.External;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,21 @@ builder.Services.AddControllers(options =>
 {
     // Registra o exception filter globalizado
     options.Filters.Add<ApiExceptionFilter>();
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        // Coloque breakpoint aqui para depurar erros de validação automática (400).
+        var problemDetails = new ValidationProblemDetails(context.ModelState)
+        {
+            Title = "Erro de validação.",
+            Status = StatusCodes.Status400BadRequest
+        };
+
+        return new BadRequestObjectResult(problemDetails);
+    };
 });
 
 // Habilita CORS para permitir chamadas do frontend Angular local.
@@ -23,7 +39,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // Registra serviços de infraestrutura (email, logger, etc)
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailPortAdapter, EmailPortAdapter>();
 builder.Services.AddScoped<ILoggerPort, LoggerPortAdapter>();
 
 // Opcional: habilitar OpenAPI quando quiser expor Swagger.

@@ -14,9 +14,9 @@ namespace API.Application.UseCases.Users;
 public class CreateUserUseCase
 {
     private readonly IUserRepository _userRepository;
-    private readonly IEmailService _emailService;
+    private readonly IEmailPortAdapter _emailService;
 
-    public CreateUserUseCase(IUserRepository userRepository, IEmailService emailService)
+    public CreateUserUseCase(IUserRepository userRepository, IEmailPortAdapter emailService)
     {
         _userRepository = userRepository;
         _emailService = emailService;

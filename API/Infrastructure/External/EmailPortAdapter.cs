@@ -6,11 +6,11 @@ namespace API.Infrastructure.External;
 /// Implementação simples de email (placeholder).
 /// Em produção, integrar com SendGrid, AWS SES, ou similar.
 /// </summary>
-public class EmailService : IEmailService
+public class EmailPortAdapter : IEmailPortAdapter
 {
-    private readonly ILogger<EmailService> _logger;
+    private readonly ILogger<EmailPortAdapter> _logger;
 
-    public EmailService(ILogger<EmailService> logger)
+    public EmailPortAdapter(ILogger<EmailPortAdapter> logger)
     {
         _logger = logger;
     }

@@ -10,9 +10,9 @@ namespace API.Application.UseCases.Account;
 public class CreateAccountUseCase
 {
     private readonly IAccountRepository _accountRepository;
-    private readonly IEmailService _emailService;
+    private readonly IEmailPortAdapter _emailService;
 
-    public CreateAccountUseCase(IAccountRepository accountRepository, IEmailService emailService)
+    public CreateAccountUseCase(IAccountRepository accountRepository, IEmailPortAdapter emailService)
     {
         _accountRepository = accountRepository;
         _emailService = emailService;
