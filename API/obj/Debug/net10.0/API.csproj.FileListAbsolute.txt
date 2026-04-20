@@ -188,3 +188,9 @@ C:\DatingApp\API\bin\Debug\net10.0\Npgsql.dll
 C:\DatingApp\API\bin\Debug\net10.0\SharpCompress.dll
 C:\DatingApp\API\bin\Debug\net10.0\Snappier.dll
 C:\DatingApp\API\bin\Debug\net10.0\ZstdSharp.dll
+C:\DatingApp\API\bin\Debug\net10.0\API.xml
+C:\DatingApp\API\bin\Debug\net10.0\Swashbuckle.AspNetCore.Annotations.dll
+C:\DatingApp\API\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\DatingApp\API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\DatingApp\API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\DatingApp\API\obj\Debug\net10.0\API.xml

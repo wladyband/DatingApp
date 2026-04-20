@@ -9,7 +9,7 @@ namespace API.Application.UseCases.Login;
 
 /// <summary>
 /// Use case para realizar login de um usuário.
-/// Valida credenciais e retorna a entidade AppUser se bem-sucedido.
+/// Valida credenciais e retorna a entidade AppUser se autenticado.
 /// </summary>
 public class LoginUseCase
 {
@@ -40,7 +40,7 @@ public class LoginUseCase
 
         // Valida se usuário existe
         if (user == null)
-            throw new InvalidCredentialsException("Email inválidos.");
+            throw new InvalidCredentialsException();
 
         // Valida se a senha está correta
         var isPasswordValid = PasswordService.VerifyPassword(
@@ -50,7 +50,7 @@ public class LoginUseCase
         );
 
         if (!isPasswordValid)
-            throw new InvalidCredentialsException("Senha inválidos.");
+            throw new InvalidCredentialsException();
 
         // Retorna o usuário autenticado
         return user;

@@ -1,9 +1,11 @@
 using API.Application.DTOs.Requests.Users;
 using API.Application.UseCases.Users;
 using API.Web;
+using API.Web.Attributes;
 using API.Web.Mappers;
 using API.Web.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace API.Web.Controllers;
 
@@ -26,7 +28,21 @@ public class UsersController : BaseApiController
         _deleteUserUseCase = deleteUserUseCase;
     }
 
-    // POST http://localhost:5001/api/users
+    /// <summary>
+    /// Cria um novo usuário.
+    /// </summary>
+    /// <remarks>
+    /// Exemplo de body:
+    ///
+    ///     POST /api/users
+    ///     {
+    ///       "email": "sam@test.com",
+    ///       "displayname": "Sam",
+    ///       "password": "password123"
+    ///     }
+    /// </remarks>
+    [SwaggerOperation(Summary = "Criar usuário", Description = "Cria um usuário e retorna os dados públicos do usuário criado.")]
+    [Status201Created(typeof(UserResponse))]
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
@@ -36,7 +52,12 @@ public class UsersController : BaseApiController
             ApiResponse<UserResponse>.SuccessResponse(response));
     }
 
-    // GET http://localhost:5001/api/users/{id}
+    /// <summary>
+    /// Busca um usuário por ID.
+    /// </summary>
+    [SwaggerOperation(Summary = "Buscar usuário por ID", Description = "Retorna um único usuário quando encontrado.")]
+    [ProducesOkApiResponse(typeof(UserResponse))]
+    [ProducesNotFoundApiResponse]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
@@ -48,7 +69,11 @@ public class UsersController : BaseApiController
         return Ok(ApiResponse<UserResponse>.SuccessResponse(response));
     }
 
-    // GET http://localhost:5001/api/users
+    /// <summary>
+    /// Lista todos os usuários.
+    /// </summary>
+    [SwaggerOperation(Summary = "Listar usuários", Description = "Retorna uma coleção de usuários cadastrados.")]
+    [ProducesOkApiResponse(typeof(IEnumerable<UserResponse>))]
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
@@ -57,7 +82,12 @@ public class UsersController : BaseApiController
         return Ok(ApiResponse<IEnumerable<UserResponse>>.SuccessResponse(responses));
     }
 
-    // DELETE http://localhost:5001/api/users/{id}
+    /// <summary>
+    /// Remove um usuário por ID.
+    /// </summary>
+    [SwaggerOperation(Summary = "Excluir usuário", Description = "Exclui o usuário informado. Retorna 204 quando a exclusão é realizada.")]
+    [ProducesNoContentApiResponse]
+    [ProducesNotFoundApiResponse]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {

@@ -4,6 +4,8 @@ using API.Web.ExceptionHandling;
 using API.Infrastructure.External;
 using API.Application.Ports.External;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,26 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 // Habilita CORS para permitir chamadas do frontend Angular local.
 builder.Services.AddCors();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "DatingApp API",
+        Version = "v1",
+        Description = "API de contas e usuários do projeto DatingApp."
+    });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+    }
+
+    options.EnableAnnotations();
+});
+
 // Registra casos de uso e serviços da camada Application.
 builder.Services.AddApplicationServices();
 
@@ -48,6 +70,17 @@ builder.Services.AddScoped<ILoggerPort, LoggerPortAdapter>();
 var app = builder.Build();
 
 await app.InitializePersistenceAsync();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DatingApp API v1");
+        options.RoutePrefix = "swagger";
+        options.DocumentTitle = "DatingApp API Docs";
+    });
+}
 
 // Politica CORS ativa para origem do frontend em ambiente local.
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
