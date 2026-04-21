@@ -527,12 +527,34 @@ Verificar containers ativos:
 - docker ps
 
 Parar containers:
-- docker compose stop
 
 Remover containers e volumes:
-- docker compose down -v
+
+
+## Testes
+
+### Executar todos os testes
+```
+dotnet test
+```
+
+### Executar apenas testes unitários
+```
+dotnet test tests/API.UnitTests/API.UnitTests.csproj
+```
+
+### Executar apenas testes de integração
+```
+dotnet test tests/API.IntegrationTests/API.IntegrationTests.csproj
+```
+
+### Com cobertura
+```
+dotnet test --collect:"XPlat Code Coverage"
+```
 
 ---
+
 
 ## Resumo Técnico
 

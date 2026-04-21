@@ -1,0 +1,12 @@
+﻿C:\DatingApp\tests\API.UnitTests\Application\ApplicationServiceExtensionsTests.cs
+C:\DatingApp\tests\API.UnitTests\Application\UseCases\Login\LoginUseCaseTests.cs
+C:\DatingApp\tests\API.UnitTests\Infrastructure\InfrastructureInitializationExtensionsTests.cs
+C:\DatingApp\tests\API.UnitTests\Infrastructure\InfrastructureServiceExtensionsTests.cs
+C:\DatingApp\tests\API.UnitTests\Infrastructure\MongoDb\Users\MongoDbUsersModuleExtensionsTests.cs
+C:\DatingApp\tests\API.UnitTests\Infrastructure\PersistenceInitializationServiceTests.cs
+C:\Users\ZE587GW\.nuget\packages\microsoft.net.test.sdk\18.4.0\build\net8.0\Microsoft.NET.Test.Sdk.Program.cs
+C:\Users\ZE587GW\.nuget\packages\microsoft.testplatform.testhost\18.4.0\build\net8.0\x64\testhost.exe
+C:\Users\ZE587GW\.nuget\packages\microsoft.testplatform.testhost\18.4.0\build\net8.0\x64\testhost.dll
+C:\Users\ZE587GW\.nuget\packages\xunit.runner.visualstudio\3.1.5\build\net8.0\xunit.abstractions.dll
+C:\Users\ZE587GW\.nuget\packages\xunit.runner.visualstudio\3.1.5\build\net8.0\xunit.runner.visualstudio.testadapter.dll
+C:\DatingApp\tests\API.UnitTests\TestResults\aec0d2db-b34a-4668-9efd-838cd69ea2eb\coverage.cobertura.xml

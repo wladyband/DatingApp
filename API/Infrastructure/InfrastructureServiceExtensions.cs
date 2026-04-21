@@ -13,6 +13,8 @@ public static class InfrastructureServiceExtensions
         IConfiguration configuration)
     {
         // Register persistence initialization service
+        services.AddScoped<IPostgreSqlInitializer, PostgreSqlInitializer>();
+        services.AddScoped<IMongoDbInitializer, MongoDbInitializer>();
         services.AddScoped<IPersistenceInitializationService, PersistenceInitializationService>();
 
         var persistenceOptions = configuration

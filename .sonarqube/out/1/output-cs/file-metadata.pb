@@ -1,0 +1,12 @@
+Ô
+ÈC:\DatingApp\tests\API.UnitTests\obj\Debug\net10.0\Microsoft.AspNetCore.OpenApi.SourceGenerators\Microsoft.AspNetCore.OpenApi.SourceGenerators.XmlCommentGenerator\OpenApiXmlCommentSupport.generated.csutf-8[
+PC:\DatingApp\tests\API.UnitTests\obj\Debug\net10.0\API.UnitTests.AssemblyInfo.csutf-8]
+RC:\DatingApp\tests\API.UnitTests\obj\Debug\net10.0\API.UnitTests.GlobalUsings.g.csutf-8m
+bC:\DatingApp\tests\API.UnitTests\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.csutf-8x
+mC:\Users\ZE587GW\.nuget\packages\microsoft.net.test.sdk\18.4.0\build\net8.0\Microsoft.NET.Test.Sdk.Program.csutf-8a
+XC:\DatingApp\tests\API.UnitTests\Infrastructure\PersistenceInitializationServiceTests.csutf-8k
+bC:\DatingApp\tests\API.UnitTests\Infrastructure\MongoDb\Users\MongoDbUsersModuleExtensionsTests.csutf-8`
+WC:\DatingApp\tests\API.UnitTests\Infrastructure\InfrastructureServiceExtensionsTests.csutf-8g
+^C:\DatingApp\tests\API.UnitTests\Infrastructure\InfrastructureInitializationExtensionsTests.csutf-8Y
+PC:\DatingApp\tests\API.UnitTests\Application\UseCases\Login\LoginUseCaseTests.csutf-8Z
+QC:\DatingApp\tests\API.UnitTests\Application\ApplicationServiceExtensionsTests.csutf-8

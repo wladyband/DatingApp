@@ -1,0 +1,6 @@
+projectKey=DatingApp-API
+serverUrl=http://localhost:9001
+serverVersion=26.4.0.121862
+dashboardUrl=http://localhost:9001/dashboard?id=DatingApp-API
+ceTaskId=fd459488-3dfa-457b-8ae6-ce0dba3d2486
+ceTaskUrl=http://localhost:9001/api/ce/task?id=fd459488-3dfa-457b-8ae6-ce0dba3d2486

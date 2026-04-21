@@ -17,12 +17,49 @@ public interface IPersistenceInitializationService
     Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
 }
 
+public interface IPostgreSqlInitializer
+{
+    Task InitializeIfEnabledAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
+}
+
+public interface IMongoDbInitializer
+{
+    Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
+}
+
+public sealed class PostgreSqlInitializer : IPostgreSqlInitializer
+{
+    public Task InitializeIfEnabledAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
+    {
+        return services.InitializePostgreSqlIfEnabledAsync(configuration, logger);
+    }
+}
+
+public sealed class MongoDbInitializer : IMongoDbInitializer
+{
+    public Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
+    {
+        return services.InitializeMongoDbAsync(configuration, logger);
+    }
+}
+
 /// <summary>
 /// Implementation of persistence initialization service.
 /// Handles the logic for initializing PostgreSQL and MongoDB based on PersistenceOptions.
 /// </summary>
 public sealed class PersistenceInitializationService : IPersistenceInitializationService
 {
+    private readonly IPostgreSqlInitializer _postgreSqlInitializer;
+    private readonly IMongoDbInitializer _mongoDbInitializer;
+
+    public PersistenceInitializationService(
+        IPostgreSqlInitializer postgreSqlInitializer,
+        IMongoDbInitializer mongoDbInitializer)
+    {
+        _postgreSqlInitializer = postgreSqlInitializer;
+        _mongoDbInitializer = mongoDbInitializer;
+    }
+
     public async Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -35,7 +72,7 @@ public sealed class PersistenceInitializationService : IPersistenceInitializatio
         // This prevents accidental changes to the PostgreSQL database while the
         // subscription domain is not yet in development.
         logger.LogInformation("Initializing PostgreSQL if enabled...");
-        await services.InitializePostgreSqlIfEnabledAsync(configuration, logger);
+        await _postgreSqlInitializer.InitializeIfEnabledAsync(services, configuration, logger);
 
         // Seed data belongs exclusively to MongoDB (users and exercises).
         // PostgreSQL does not receive seed at this moment.
@@ -46,7 +83,7 @@ public sealed class PersistenceInitializationService : IPersistenceInitializatio
         }
 
         logger.LogInformation("Initializing MongoDB...");
-        await services.InitializeMongoDbAsync(configuration, logger);
+        await _mongoDbInitializer.InitializeAsync(services, configuration, logger);
     }
 
     private static PersistenceOptions GetPersistenceOptions(IConfiguration configuration)
