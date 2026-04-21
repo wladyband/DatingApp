@@ -12,6 +12,9 @@ public static class InfrastructureServiceExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Register persistence initialization service
+        services.AddScoped<IPersistenceInitializationService, PersistenceInitializationService>();
+
         var persistenceOptions = configuration
             .GetSection(PersistenceOptions.SectionName)
             .Get<PersistenceOptions>() ?? new PersistenceOptions();

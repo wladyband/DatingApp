@@ -1,35 +1,27 @@
-using API.Infrastructure.MongoDb;
-using API.Infrastructure.PostgreSql;
-using API.Infrastructure.PostgreSql.Configuration;
-
 namespace API.Infrastructure;
 
+/// <summary>
+/// Extension methods for infrastructure initialization.
+/// Responsibility: Bridge between WebApplication startup and persistence initialization service.
+/// </summary>
 public static class InfrastructureInitializationExtensions
 {
+    /// <summary>
+    /// Initializes persistence layer (PostgreSQL and MongoDB) asynchronously.
+    /// Creates a service scope and delegates to IPersistenceInitializationService.
+    /// </summary>
     public static async Task InitializePersistenceAsync(this WebApplication app)
     {
+        ArgumentNullException.ThrowIfNull(app);
+
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
+
         var configuration = services.GetRequiredService<IConfiguration>();
-        var logger = services.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("PersistenceInitialization");
+        var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger("PersistenceInitialization");
 
-        var persistenceOptions = configuration
-            .GetSection(PersistenceOptions.SectionName)
-            .Get<PersistenceOptions>() ?? new PersistenceOptions();
-
-        // PostgreSQL: migrações só rodam quando habilitadas explicitamente por configuração.
-        // Isso evita qualquer alteração acidental no banco PostgreSQL enquanto o domínio
-        // de assinaturas ainda não estiver em desenvolvimento.
-        await services.InitializePostgreSqlIfEnabledAsync(configuration, logger);
-
-        // Seed de dados pertence exclusivamente ao MongoDB (usuários e exercícios).
-        // PostgreSQL não recebe seed neste momento.
-        if (!string.Equals(persistenceOptions.Provider, "MongoDb", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        await services.InitializeMongoDbAsync(configuration, logger);
+        var persistenceService = services.GetRequiredService<IPersistenceInitializationService>();
+        await persistenceService.InitializeAsync(services, configuration, logger);
     }
 }
