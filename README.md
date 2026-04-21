@@ -545,3 +545,392 @@ Principais ganhos já alcançados:
 - Domínios separados por banco: MongoDB para produto, PostgreSQL para pagamentos
 - Sistema de migrations versionadas para o PostgreSQL já operacional
 - Base adequada para suportar múltiplos conectores de autenticação no futuro sem quebrar o core
+
+---
+
+# 📊 Modelo de Dados
+
+## 🗄️ Modelo SQL (PostgreSQL - Permissões e Controle de Acesso)
+
+### Tabelas Principais
+
+| Tabela | Descrição | Registros |
+|--------|-----------|-----------|
+| `users` | Usuários do sistema | 5 |
+| `roles` | Papéis/Funções | 5 |
+| `actions` | Ações disponíveis | 5 |
+| `resources` | Recursos protegidos | 5 |
+| `permissions` | Permissões (Resource + Action) | 5 |
+| `user_roles` | Associação Usuário-Papel | 5 |
+| `role_permissions` | Associação Papel-Permissão | 5 |
+
+### Scripts de Inserção SQL
+
+#### USERS (Usuários)
+```sql
+INSERT INTO users (id, email, password_hash, status) VALUES
+(1, 'admin@datingapp.com', 'hash_admin', 'ACTIVE'),
+(2, 'moderador@datingapp.com', 'hash_mod', 'ACTIVE'),
+(3, 'premium@datingapp.com', 'hash_premium', 'ACTIVE'),
+(4, 'basico@datingapp.com', 'hash_basic', 'ACTIVE'),
+(5, 'suporte@datingapp.com', 'hash_support', 'ACTIVE');
+```
+
+| ID | Email | Tipo | Status |
+|----|----|------|--------|
+| 1 | admin@datingapp.com | Administrador | ✅ ACTIVE |
+| 2 | moderador@datingapp.com | Moderador | ✅ ACTIVE |
+| 3 | premium@datingapp.com | Premium | ✅ ACTIVE |
+| 4 | basico@datingapp.com | Básico | ✅ ACTIVE |
+| 5 | suporte@datingapp.com | Suporte | ✅ ACTIVE |
+
+#### ROLES (Papéis)
+```sql
+INSERT INTO roles (id, name, description) VALUES
+(1, 'ADMIN', 'Acesso total ao sistema'),
+(2, 'MODERATOR', 'Moderação de conteúdo e usuários'),
+(3, 'PREMIUM_USER', 'Usuário com recursos premium'),
+(4, 'BASIC_USER', 'Usuário padrão'),
+(5, 'SUPPORT', 'Atendimento e suporte interno');
+```
+
+| ID | Nome | Descrição |
+|----|------|-----------|
+| 1 | 👑 ADMIN | Acesso total ao sistema |
+| 2 | 🛡️ MODERATOR | Moderação de conteúdo e usuários |
+| 3 | ⭐ PREMIUM_USER | Usuário com recursos premium |
+| 4 | 👤 BASIC_USER | Usuário padrão |
+| 5 | 🎧 SUPPORT | Atendimento e suporte interno |
+
+#### ACTIONS (Ações)
+```sql
+INSERT INTO actions (id, name) VALUES
+(1, 'VIEW'),
+(2, 'CLICK'),
+(3, 'EDIT'),
+(4, 'DELETE'),
+(5, 'EXPORT');
+```
+
+| ID | Ação | Descrição |
+|----|------|-----------|
+| 1 | 👁️ VIEW | Visualizar |
+| 2 | 🖱️ CLICK | Clicar |
+| 3 | ✏️ EDIT | Editar |
+| 4 | 🗑️ DELETE | Deletar |
+| 5 | 📤 EXPORT | Exportar |
+
+#### RESOURCES (Recursos)
+```sql
+INSERT INTO resources (id, type, key, parent_resource_id, description) VALUES
+(1, 'PAGE', 'page:dashboard', NULL, 'Página principal'),
+(2, 'PAGE', 'page:profile', NULL, 'Página de perfil'),
+(3, 'COMPONENT', 'component:profile:edit-button', 2, 'Botão editar perfil'),
+(4, 'COMPONENT', 'component:dashboard:export-button', 1, 'Botão exportar dados'),
+(5, 'API', 'api:users:list', NULL, 'Endpoint de listagem de usuários');
+```
+
+| ID | Tipo | Chave | Pai | Descrição |
+|----|------|-------|-----|-----------|
+| 1 | 📄 PAGE | page:dashboard | — | Página principal |
+| 2 | 📄 PAGE | page:profile | — | Página de perfil |
+| 3 | ⚙️ COMPONENT | component:profile:edit-button | 2 | Botão editar perfil |
+| 4 | ⚙️ COMPONENT | component:dashboard:export-button | 1 | Botão exportar dados |
+| 5 | 🔌 API | api:users:list | — | Endpoint de listagem de usuários |
+
+#### PERMISSIONS (Permissões)
+```sql
+INSERT INTO permissions (id, resource_id, action_id, effect) VALUES
+(1, 1, 1, 'ALLOW'),  -- VIEW page:dashboard
+(2, 2, 1, 'ALLOW'),  -- VIEW page:profile
+(3, 3, 2, 'ALLOW'),  -- CLICK component:profile:edit-button
+(4, 4, 5, 'DENY'),   -- EXPORT component:dashboard:export-button
+(5, 5, 1, 'ALLOW');  -- VIEW api:users:list
+```
+
+| ID | Resource | Ação | Efeito | Descrição |
+|----|----------|------|--------|-----------|
+| 1 | page:dashboard | VIEW | ✅ ALLOW | Ver dashboard |
+| 2 | page:profile | VIEW | ✅ ALLOW | Ver perfil |
+| 3 | component:profile:edit-button | CLICK | ✅ ALLOW | Clicável |
+| 4 | component:dashboard:export-button | EXPORT | ❌ DENY | Bloqueado |
+| 5 | api:users:list | VIEW | ✅ ALLOW | Acessível |
+
+#### USER_ROLES (Usuário-Papel)
+```sql
+INSERT INTO user_roles (user_id, role_id, assigned_at) VALUES
+(1, 1, NOW()),
+(2, 2, NOW()),
+(3, 3, NOW()),
+(4, 4, NOW()),
+(5, 5, NOW());
+```
+
+| Usuário | Papel | Atribuído em |
+|---------|-------|-------------|
+| admin@datingapp.com | 👑 ADMIN | Agora |
+| moderador@datingapp.com | 🛡️ MODERATOR | Agora |
+| premium@datingapp.com | ⭐ PREMIUM_USER | Agora |
+| basico@datingapp.com | 👤 BASIC_USER | Agora |
+| suporte@datingapp.com | 🎧 SUPPORT | Agora |
+
+#### ROLE_PERMISSIONS (Papel-Permissão)
+```sql
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+(1, 1),  -- ADMIN -> VIEW dashboard
+(1, 5),  -- ADMIN -> VIEW api users
+(2, 5),  -- MODERATOR -> VIEW api users
+(3, 3),  -- PREMIUM_USER -> CLICK edit-button
+(4, 4);  -- BASIC_USER -> DENY export-button
+```
+
+| Papel | Permissão |
+|-------|-----------|
+| 👑 ADMIN | ✅ VIEW dashboard |
+| 👑 ADMIN | ✅ VIEW api:users:list |
+| 🛡️ MODERATOR | ✅ VIEW api:users:list |
+| ⭐ PREMIUM_USER | ✅ CLICK edit-button |
+| 👤 BASIC_USER | ❌ DENY export-button |
+
+---
+
+## 🍃 Modelo NoSQL (MongoDB)
+
+### Collections
+
+```javascript
+use datingapp
+
+const now = new Date();
+
+// USERS (5)
+db.users.insertMany([
+  { _id: 1, email: "admin@datingapp.com",     password_hash: "hash_admin",   status: "ACTIVE" },
+  { _id: 2, email: "moderador@datingapp.com", password_hash: "hash_mod",     status: "ACTIVE" },
+  { _id: 3, email: "premium@datingapp.com",   password_hash: "hash_premium", status: "ACTIVE" },
+  { _id: 4, email: "basico@datingapp.com",    password_hash: "hash_basic",   status: "ACTIVE" },
+  { _id: 5, email: "suporte@datingapp.com",   password_hash: "hash_support", status: "ACTIVE" }
+]);
+
+// ROLES (5)
+db.roles.insertMany([
+  { _id: 1, name: "ADMIN",        description: "Acesso total ao sistema" },
+  { _id: 2, name: "MODERATOR",    description: "Moderação de conteúdo e usuários" },
+  { _id: 3, name: "PREMIUM_USER", description: "Usuário com recursos premium" },
+  { _id: 4, name: "BASIC_USER",   description: "Usuário padrão" },
+  { _id: 5, name: "SUPPORT",      description: "Atendimento e suporte interno" }
+]);
+
+// ACTIONS (5)
+db.actions.insertMany([
+  { _id: 1, name: "VIEW" },
+  { _id: 2, name: "CLICK" },
+  { _id: 3, name: "EDIT" },
+  { _id: 4, name: "DELETE" },
+  { _id: 5, name: "EXPORT" }
+]);
+
+// RESOURCES (5)
+db.resources.insertMany([
+  { _id: 1, type: "PAGE",      key: "page:dashboard",                   parent_resource_id: null, description: "Página principal" },
+  { _id: 2, type: "PAGE",      key: "page:profile",                     parent_resource_id: null, description: "Página de perfil" },
+  { _id: 3, type: "COMPONENT", key: "component:profile:edit-button",    parent_resource_id: 2,    description: "Botão editar perfil" },
+  { _id: 4, type: "COMPONENT", key: "component:dashboard:export-button",parent_resource_id: 1,    description: "Botão exportar dados" },
+  { _id: 5, type: "API",       key: "api:users:list",                   parent_resource_id: null, description: "Endpoint de listagem de usuários" }
+]);
+
+// PERMISSIONS (5)
+db.permissions.insertMany([
+  { _id: 1, resource_id: 1, action_id: 1, effect: "ALLOW" }, // VIEW page:dashboard
+  { _id: 2, resource_id: 2, action_id: 1, effect: "ALLOW" }, // VIEW page:profile
+  { _id: 3, resource_id: 3, action_id: 2, effect: "ALLOW" }, // CLICK component:profile:edit-button
+  { _id: 4, resource_id: 4, action_id: 5, effect: "DENY"  }, // EXPORT component:dashboard:export-button
+  { _id: 5, resource_id: 5, action_id: 1, effect: "ALLOW" }  // VIEW api:users:list
+]);
+
+// USER_ROLES (5)
+db.user_roles.insertMany([
+  { user_id: 1, role_id: 1, assigned_at: now },
+  { user_id: 2, role_id: 2, assigned_at: now },
+  { user_id: 3, role_id: 3, assigned_at: now },
+  { user_id: 4, role_id: 4, assigned_at: now },
+  { user_id: 5, role_id: 5, assigned_at: now }
+]);
+
+// ROLE_PERMISSIONS (5)
+db.role_permissions.insertMany([
+  { role_id: 1, permission_id: 1 }, // ADMIN -> VIEW dashboard
+  { role_id: 1, permission_id: 5 }, // ADMIN -> VIEW api users
+  { role_id: 2, permission_id: 5 }, // MODERATOR -> VIEW api users
+  { role_id: 3, permission_id: 3 }, // PREMIUM_USER -> CLICK edit-button
+  { role_id: 4, permission_id: 4 }  // BASIC_USER -> DENY export-button
+]);
+
+// Índices recomendados para consistência/performance
+db.users.createIndex({ email: 1 }, { unique: true });
+db.roles.createIndex({ name: 1 }, { unique: true });
+db.actions.createIndex({ name: 1 }, { unique: true });
+db.resources.createIndex({ key: 1 }, { unique: true });
+db.user_roles.createIndex({ user_id: 1, role_id: 1 }, { unique: true });
+db.role_permissions.createIndex({ role_id: 1, permission_id: 1 }, { unique: true });
+db.permissions.createIndex({ resource_id: 1, action_id: 1 }, { unique: true });
+```
+
+### Índices Criados
+
+| Collection | Campo(s) | Único |
+|-----------|----------|-------|
+| users | `email` | ✅ Sim |
+| roles | `name` | ✅ Sim |
+| actions | `name` | ✅ Sim |
+| resources | `key` | ✅ Sim |
+| user_roles | `user_id, role_id` | ✅ Sim |
+| role_permissions | `role_id, permission_id` | ✅ Sim |
+| permissions | `resource_id, action_id` | ✅ Sim |
+
+---
+
+## 📋 Representação em JSON
+
+### Estrutura Completa
+
+```json
+{
+  "database": "datingapp",
+  "collections": {
+    "users": [
+      { "_id": 1, "email": "admin@datingapp.com", "password_hash": "hash_admin", "status": "ACTIVE" },
+      { "_id": 2, "email": "moderador@datingapp.com", "password_hash": "hash_mod", "status": "ACTIVE" },
+      { "_id": 3, "email": "premium@datingapp.com", "password_hash": "hash_premium", "status": "ACTIVE" },
+      { "_id": 4, "email": "basico@datingapp.com", "password_hash": "hash_basic", "status": "ACTIVE" },
+      { "_id": 5, "email": "suporte@datingapp.com", "password_hash": "hash_support", "status": "ACTIVE" }
+    ],
+    "roles": [
+      { "_id": 1, "name": "ADMIN", "description": "Acesso total ao sistema" },
+      { "_id": 2, "name": "MODERATOR", "description": "Moderação de conteúdo e usuários" },
+      { "_id": 3, "name": "PREMIUM_USER", "description": "Usuário com recursos premium" },
+      { "_id": 4, "name": "BASIC_USER", "description": "Usuário padrão" },
+      { "_id": 5, "name": "SUPPORT", "description": "Atendimento e suporte interno" }
+    ],
+    "actions": [
+      { "_id": 1, "name": "VIEW" },
+      { "_id": 2, "name": "CLICK" },
+      { "_id": 3, "name": "EDIT" },
+      { "_id": 4, "name": "DELETE" },
+      { "_id": 5, "name": "EXPORT" }
+    ],
+    "resources": [
+      { "_id": 1, "type": "PAGE", "key": "page:dashboard", "parent_resource_id": null, "description": "Página principal" },
+      { "_id": 2, "type": "PAGE", "key": "page:profile", "parent_resource_id": null, "description": "Página de perfil" },
+      { "_id": 3, "type": "COMPONENT", "key": "component:profile:edit-button", "parent_resource_id": 2, "description": "Botão editar perfil" },
+      { "_id": 4, "type": "COMPONENT", "key": "component:dashboard:export-button", "parent_resource_id": 1, "description": "Botão exportar dados" },
+      { "_id": 5, "type": "API", "key": "api:users:list", "parent_resource_id": null, "description": "Endpoint de listagem de usuários" }
+    ],
+    "permissions": [
+      { "_id": 1, "resource_id": 1, "action_id": 1, "effect": "ALLOW" },
+      { "_id": 2, "resource_id": 2, "action_id": 1, "effect": "ALLOW" },
+      { "_id": 3, "resource_id": 3, "action_id": 2, "effect": "ALLOW" },
+      { "_id": 4, "resource_id": 4, "action_id": 5, "effect": "DENY" },
+      { "_id": 5, "resource_id": 5, "action_id": 1, "effect": "ALLOW" }
+    ],
+    "user_roles": [
+      { "user_id": 1, "role_id": 1, "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": 2, "role_id": 2, "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": 3, "role_id": 3, "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": 4, "role_id": 4, "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": 5, "role_id": 5, "assigned_at": "2026-04-20T00:00:00.000Z" }
+    ],
+    "role_permissions": [
+      { "role_id": 1, "permission_id": 1 },
+      { "role_id": 1, "permission_id": 5 },
+      { "role_id": 2, "permission_id": 5 },
+      { "role_id": 3, "permission_id": 3 },
+      { "role_id": 4, "permission_id": 4 }
+    ]
+  },
+  "indexes": {
+    "users": [
+      { "keys": { "email": 1 }, "options": { "unique": true } }
+    ],
+    "roles": [
+      { "keys": { "name": 1 }, "options": { "unique": true } }
+    ],
+    "actions": [
+      { "keys": { "name": 1 }, "options": { "unique": true } }
+    ],
+    "resources": [
+      { "keys": { "key": 1 }, "options": { "unique": true } }
+    ],
+    "user_roles": [
+      { "keys": { "user_id": 1, "role_id": 1 }, "options": { "unique": true } }
+    ],
+    "role_permissions": [
+      { "keys": { "role_id": 1, "permission_id": 1 }, "options": { "unique": true } }
+    ],
+    "permissions": [
+      { "keys": { "resource_id": 1, "action_id": 1 }, "options": { "unique": true } }
+    ]
+  }
+}
+```
+
+---
+
+## 📈 Relacionamentos e Fluxo de Dados
+
+### Fluxo de Permissões
+
+```
+Usuário (user)
+    ↓
+User-Role (user_roles) ← Associa usuário a papéis
+    ↓
+Papel (role)
+    ↓
+Role-Permission (role_permissions) ← Associa papel a permissões
+    ↓
+Permissão (permission)
+    ├→ Resource (resources) ← Página, componente ou API
+    └→ Action (actions) ← Visualizar, clicar, editar, etc.
+```
+
+### Exemplos de Consultas
+
+#### SQL
+```sql
+-- Listar todas as permissões de um usuário
+SELECT DISTINCT p.id, r.key, a.name, p.effect
+FROM users u
+JOIN user_roles ur ON u.id = ur.user_id
+JOIN role_permissions rp ON ur.role_id = rp.role_id
+JOIN permissions p ON rp.permission_id = p.id
+JOIN resources r ON p.resource_id = r.id
+JOIN actions a ON p.action_id = a.id
+WHERE u.email = 'admin@datingapp.com';
+```
+
+#### MongoDB
+```javascript
+// Listar todas as permissões de um usuário
+db.user_roles.aggregate([
+  { $match: { user_id: 1 } },
+  { $lookup: { from: "role_permissions", localField: "role_id", foreignField: "role_id", as: "role_perms" } },
+  { $unwind: "$role_perms" },
+  { $lookup: { from: "permissions", localField: "role_perms.permission_id", foreignField: "_id", as: "perm" } },
+  { $unwind: "$perm" },
+  { $lookup: { from: "resources", localField: "perm.resource_id", foreignField: "_id", as: "resource" } },
+  { $lookup: { from: "actions", localField: "perm.action_id", foreignField: "_id", as: "action" } },
+  { $project: { resource: 1, action: 1, effect: "$perm.effect" } }
+])
+```
+
+---
+
+## ✅ Notas de Implementação
+
+- **Unicidade**: E-mail de usuário e nomes de papéis são únicos
+- **Cascata**: Deletar um usuário requer remover suas associações em `user_roles`
+- **Auditoria**: Campo `assigned_at` rastreia quando um papel foi atribuído
+- **Performance**: Índices múltiplos garantem queries eficientes
+- **Flexibilidade**: Modelo suporta qualquer combinação de Resource + Action
+- **Escalabilidade**: Pode crescer para centenas de usuários, papéis e permissões sem degradação
