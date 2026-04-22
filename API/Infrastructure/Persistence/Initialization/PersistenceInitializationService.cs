@@ -1,47 +1,7 @@
-using API.Infrastructure.MongoDb;
-using API.Infrastructure.PostgreSql;
 using API.Infrastructure.PostgreSql.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace API.Infrastructure;
-
-/// <summary>
-/// Service responsible for initializing persistence layer (PostgreSQL and MongoDB).
-/// Extracted from the extension method to enable unit testing.
-/// </summary>
-public interface IPersistenceInitializationService
-{
-    /// <summary>
-    /// Initializes the persistence layer based on configuration.
-    /// </summary>
-    Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
-}
-
-public interface IPostgreSqlInitializer
-{
-    Task InitializeIfEnabledAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
-}
-
-public interface IMongoDbInitializer
-{
-    Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger);
-}
-
-public sealed class PostgreSqlInitializer : IPostgreSqlInitializer
-{
-    public Task InitializeIfEnabledAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
-    {
-        return services.InitializePostgreSqlIfEnabledAsync(configuration, logger);
-    }
-}
-
-public sealed class MongoDbInitializer : IMongoDbInitializer
-{
-    public Task InitializeAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
-    {
-        return services.InitializeMongoDbAsync(configuration, logger);
-    }
-}
 
 /// <summary>
 /// Implementation of persistence initialization service.

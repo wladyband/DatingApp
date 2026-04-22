@@ -1,6 +1,6 @@
 using API.Domain.Entities;
 
-namespace API.Application.Ports.Persistence;
+namespace API.Application.Ports.Services;
 
 public interface IAccountRepository
 {
@@ -8,6 +8,3 @@ public interface IAccountRepository
 
     Task AddAsync(AppUser user);
 }
-
-
-

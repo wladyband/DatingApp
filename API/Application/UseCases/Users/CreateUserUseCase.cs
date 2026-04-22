@@ -1,6 +1,6 @@
 using API.Application.DTOs.Requests.Users;
 using API.Application.Ports.External;
-using API.Application.Ports.Persistence;
+using API.Application.Ports.Services;
 using API.Domain.Entities;
 using API.Domain.Services;
 using API.Domain.Exceptions;

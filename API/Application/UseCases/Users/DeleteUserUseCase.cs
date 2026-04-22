@@ -1,4 +1,4 @@
-using API.Application.Ports.Persistence;
+using API.Application.Ports.Services;
 using API.Domain.Exceptions;
 
 namespace API.Application.UseCases.Users;

@@ -1,6 +1,6 @@
 using API.Domain.Entities;
 
-namespace API.Application.Ports.Persistence;
+namespace API.Application.Ports.Services;
 
 /// <summary>
 /// Port que define como o domínio acessa dados de usuários.
@@ -18,26 +18,13 @@ public interface IUserRepository
     /// </summary>
     Task<AppUser?> GetByEmailAsync(string email);
 
-    /// <summary>
-    /// Obtém todos os usuários.
-    /// </summary>
-    Task<IEnumerable<AppUser>> GetAllAsync();
 
-    /// <summary>
-    /// Adiciona um novo usuário ao repositório.
-    /// </summary>
+
     Task AddAsync(AppUser user);
 
-    /// <summary>
-    /// Atualiza um usuário existente.
-    /// </summary>
+    Task<IEnumerable<AppUser>> GetAllAsync();
+
     Task UpdateAsync(AppUser user);
 
-    /// <summary>
-    /// Remove um usuário pelo ID.
-    /// </summary>
     Task RemoveAsync(string id);
 }
-
-
-
