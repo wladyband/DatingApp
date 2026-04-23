@@ -22,12 +22,12 @@ public class CreateUserUseCase
         _emailService = emailService;
     }
 
-    public async Task<AppUser> ExecuteAsync(CreateUserInput input)
+    public async Task<AppUser> CreateAsync(CreateUserInput input)
     {
         if (string.IsNullOrWhiteSpace(input.Email))
             throw new DomainException("Email é obrigatório.");
 
-        if (string.IsNullOrWhiteSpace(input.Displayname))
+        if (string.IsNullOrWhiteSpace(input.DisplayName))
             throw new DomainException("Nome de exibição é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(input.Password))
@@ -42,13 +42,13 @@ public class CreateUserUseCase
         var user = new AppUser
         {
             Email = input.Email,
-            Displayname = input.Displayname,
+            DisplayName = input.DisplayName,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt
         };
 
         await _userRepository.AddAsync(user);
-        await _emailService.SendWelcomeEmailAsync(user.Email, user.Displayname);
+        await _emailService.SendWelcomeEmailAsync(user.Email, user.DisplayName);
 
         return user;
     }

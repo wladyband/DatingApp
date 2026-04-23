@@ -33,7 +33,7 @@ public class AccountController : BaseApiController
     ///     POST /api/account/register
     ///     {
     ///       "email": "sam@test.com",
-    ///       "displayname": "Sam",
+    ///       "displayName": "Sam",
     ///       "password": "password123"
     ///     }
     /// </remarks>
@@ -43,7 +43,7 @@ public class AccountController : BaseApiController
     [HttpPost("register")]
     public async Task<IActionResult> CreateAccount([FromBody] CreateAccountInput input)
     {
-        var user = await _createAccountUseCase.ExecuteAsync(input);
+        var user = await _createAccountUseCase.RegisterAsync(input);
         var response = user.ToAccountResponse();
         return StatusCode(StatusCodes.Status201Created,
             ApiResponse<AccountResponse>.SuccessResponse(response));
@@ -62,7 +62,7 @@ public class AccountController : BaseApiController
     [HttpPost("register/query")]
     public async Task<IActionResult> CreateAccountByQuery([FromQuery] CreateAccountInput input)
     {
-        var user = await _createAccountUseCase.ExecuteAsync(input);
+        var user = await _createAccountUseCase.RegisterAsync(input);
         var response = user.ToAccountResponse();
         return StatusCode(StatusCodes.Status201Created,
             ApiResponse<AccountResponse>.SuccessResponse(response));
@@ -87,7 +87,7 @@ public class AccountController : BaseApiController
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginInput input)
     {
-        var user = await _loginUseCase.ExecuteAsync(input);
+        var user = await _loginUseCase.LoginAsync(input);
         var response = user.ToAccountResponse();
         return Ok(ApiResponse<AccountResponse>.SuccessResponse(response));
     }

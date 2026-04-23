@@ -37,7 +37,7 @@ public class UsersController : BaseApiController
     ///     POST /api/users
     ///     {
     ///       "email": "sam@test.com",
-    ///       "displayname": "Sam",
+    ///       "displayName": "Sam",
     ///       "password": "password123"
     ///     }
     /// </remarks>
@@ -46,7 +46,7 @@ public class UsersController : BaseApiController
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserInput input)
     {
-        var user = await _createUserUseCase.ExecuteAsync(input);
+        var user = await _createUserUseCase.CreateAsync(input);
         var response = user.ToUserResponse();
         return CreatedAtAction(nameof(GetUserById), new { id = user.Id },
             ApiResponse<UserResponse>.SuccessResponse(response));
@@ -61,7 +61,7 @@ public class UsersController : BaseApiController
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
-        var user = await _getUserByIdUseCase.ExecuteAsync(id);
+        var user = await _getUserByIdUseCase.GetByIdAsync(id);
         if (user == null)
             return NotFound(ApiResponse.ErrorResponse("Usuário não encontrado", "USER_NOT_FOUND"));
 
@@ -77,7 +77,7 @@ public class UsersController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        var users = await _getAllUsersUseCase.ExecuteAsync();
+        var users = await _getAllUsersUseCase.GetAllAsync();
         var responses = users.ToUserResponseList();
         return Ok(ApiResponse<IEnumerable<UserResponse>>.SuccessResponse(responses));
     }
@@ -91,7 +91,7 @@ public class UsersController : BaseApiController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
-        var deleted = await _deleteUserUseCase.ExecuteAsync(id);
+        var deleted = await _deleteUserUseCase.DeleteAsync(id);
         if (!deleted)
             return NotFound(ApiResponse.ErrorResponse("Usuário não encontrado", "USER_NOT_FOUND"));
 

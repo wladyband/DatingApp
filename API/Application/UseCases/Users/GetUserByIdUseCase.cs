@@ -17,7 +17,7 @@ public class GetUserByIdUseCase
         _userRepository = userRepository;
     }
 
-    public async Task<AppUser?> ExecuteAsync(string userId)
+    public async Task<AppUser?> GetByIdAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new DomainException("ID do usuário é obrigatório.");

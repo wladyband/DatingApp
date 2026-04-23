@@ -21,6 +21,6 @@ public static class SeedDataModes
 
 public class SeedUserOptions
 {
-    public string Displayname { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 }

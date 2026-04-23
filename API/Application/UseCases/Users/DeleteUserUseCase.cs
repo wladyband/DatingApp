@@ -12,7 +12,7 @@ public class DeleteUserUseCase
         _userRepository = userRepository;
     }
 
-    public async Task<bool> ExecuteAsync(string userId)
+    public async Task<bool> DeleteAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new DomainException("ID do usuário é obrigatório.");

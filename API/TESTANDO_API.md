@@ -26,13 +26,13 @@ Content-Type: application/json
 
 {
   "email": "joao@example.com",
-  "displayname": "João Silva"
+  "displayName": "João Silva"
 }
 ```
 
 **Respostas:**
 - `201 Created`: Usuário criado com sucesso
-- `400 Bad Request`: Email ou displayname vazio
+- `400 Bad Request`: Email ou displayName vazio
 - `409 Conflict`: Email já existe
 
 **Exemplo cURL:**
@@ -41,7 +41,7 @@ curl -X POST http://localhost:5000/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "email": "joao@example.com",
-    "displayname": "João Silva"
+    "displayName": "João Silva"
   }'
 ```
 
@@ -111,7 +111,7 @@ curl -X DELETE http://localhost:5000/api/users/123e4567-e89b-12d3-a456-426614174
 # Criar usuário
 $body = @{
   email = "maria@example.com"
-  displayname = "Maria"
+  displayName = "Maria"
 } | ConvertTo-Json
 
 $response = Invoke-WebRequest -Uri "http://localhost:5000/api/users" `
@@ -142,7 +142,7 @@ Content-Type: application/json
 
 {
   "email": "carlos@example.com",
-  "displayname": "Carlos"
+  "displayName": "Carlos"
 }
 
 ### Listar Usuários

@@ -4,6 +4,8 @@ using API.Infrastructure.External;
 using API.Application.Ports.External;
 using API.Web;
 using API.Web.ExceptionHandling;
+using API.Application.Ports.Infrastructure;
+using API.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,8 @@ builder.Services.AddWebApi();
 
 // Habilita CORS para permitir chamadas do frontend Angular local.
 builder.Services.AddCors();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddSwaggerDocumentation();
 

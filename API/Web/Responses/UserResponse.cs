@@ -7,5 +7,5 @@ namespace API.Web.Responses;
 public record UserResponse(
     string Id,
     string Email,
-    string Displayname
+    string DisplayName
 );

@@ -4,6 +4,8 @@ using API.Application.Ports.Services;
 using API.Domain.Services;
 using API.Domain.Entities;
 using API.Domain.Exceptions;
+using API.Application.DTOs.Requests.Users;
+using API.Application.Ports.Infrastructure;
 
 namespace API.Application.UseCases.Login;
 
@@ -14,13 +16,15 @@ namespace API.Application.UseCases.Login;
 public class LoginUseCase
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly ITokenService _tokenService;
 
-    public LoginUseCase(IAccountRepository accountRepository)
+    public LoginUseCase(IAccountRepository accountRepository, ITokenService tokenService)
     {
         _accountRepository = accountRepository;
+        _tokenService = tokenService;
     }
 
-    public async Task<AppUser> ExecuteAsync(LoginInput input)
+    public async Task<UserInput> LoginAsync(LoginInput input)
     {
         // Validações de entrada
         if (input == null)
@@ -53,6 +57,13 @@ public class LoginUseCase
             throw new InvalidCredentialsException();
 
         // Retorna o usuário autenticado
-        return user;
+        return new UserInput
+        {
+            Id = user.Id,
+            Email = user.Email,
+            DisplayName = user.DisplayName,
+            Token = _tokenService.CreateToken(user)
+        };
+
     }
 }

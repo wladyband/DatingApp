@@ -194,3 +194,8 @@ C:\DatingApp\API\obj\Debug\net10.0\API.xml
 C:\DatingApp\API\obj\Debug\net10.0\API.pdb
 C:\DatingApp\API\obj\Debug\net10.0\API.genruntimeconfig.cache
 C:\DatingApp\API\obj\Debug\net10.0\ref\API.dll
+c:\DatingApp\API\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+c:\DatingApp\API\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+c:\DatingApp\API\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+c:\DatingApp\API\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+c:\DatingApp\API\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll

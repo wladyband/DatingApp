@@ -12,7 +12,7 @@ public class GetAllUsersUseCase
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<AppUser>> ExecuteAsync()
+    public async Task<IEnumerable<AppUser>> GetAllAsync()
     {
         return await _userRepository.GetAllAsync();
     }

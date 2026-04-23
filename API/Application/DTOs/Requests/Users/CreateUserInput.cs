@@ -12,7 +12,7 @@ public record CreateUserInput(
 
     [param: Required(ErrorMessage = "O nome de exibição é obrigatório.")]
     [param: StringLength(50, MinimumLength = 2, ErrorMessage = "O nome deve ter entre 2 e 50 caracteres.")]
-    string Displayname,
+    string DisplayName,
 
     [param: Required(ErrorMessage = "A senha é obrigatória.")]
     [param: MinLength(6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]

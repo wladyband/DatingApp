@@ -55,7 +55,7 @@ public static class MongoDbUsersInitializationExtensions
         {
             var filter = Builders<AppUser>.Filter.Eq(existing => existing.Email, user.Email);
             var update = Builders<AppUser>.Update
-                .Set(existing => existing.Displayname, user.Displayname)
+                .Set(existing => existing.DisplayName, user.DisplayName)
                 .SetOnInsert(existing => existing.Id, user.Id)
                 .SetOnInsert(existing => existing.Email, user.Email);
 
@@ -70,11 +70,11 @@ public static class MongoDbUsersInitializationExtensions
         return seedData.Users
             .Where(user =>
                 !string.IsNullOrWhiteSpace(user.Email) &&
-                !string.IsNullOrWhiteSpace(user.Displayname))
+                !string.IsNullOrWhiteSpace(user.DisplayName))
             .Select(user => new AppUser
             {
                 Id = Guid.NewGuid().ToString(),
-                Displayname = user.Displayname.Trim(),
+                DisplayName = user.DisplayName.Trim(),
                 Email = user.Email.Trim(),
                 PasswordHash = Array.Empty<byte>(),
                 PasswordSalt = Array.Empty<byte>()

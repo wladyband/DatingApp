@@ -6,5 +6,6 @@ namespace API.Web.Responses;
 public record AccountResponse(
     string Id,
     string Email,
-    string Displayname
+    string DisplayName,
+    string? Token
 );
