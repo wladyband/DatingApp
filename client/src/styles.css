@@ -1,2 +1,8 @@
 @import "tailwindcss";
-@plugins "daisyui";
+@plugin "daisyui";
+
+:root {
+    --nav-gradient-start: #ff5a00;
+    --nav-gradient-middle: #b83f00;
+    --nav-gradient-end: #835353;
+}

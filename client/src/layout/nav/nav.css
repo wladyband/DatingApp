@@ -1,0 +1,6 @@
+.nav-surface {
+    background-image: linear-gradient(to right,
+            var(--nav-gradient-start),
+            var(--nav-gradient-middle),
+            var(--nav-gradient-end));
+}
