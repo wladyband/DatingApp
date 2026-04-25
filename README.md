@@ -26,6 +26,27 @@ A autenticação ainda não foi implementada. A estrutura atual foi preparada pa
 
 ---
 
+## Setup Local de TokenKey (Desenvolvimento)
+
+Quando o endpoint de login retorna erro 500 em ambiente local, a causa mais comum e TokenKey ausente.
+
+Comandos .NET usados para configurar e validar:
+
+```powershell
+cd API
+dotnet user-secrets set "TokenKey" "super secret key super secret key super secret key super secret key"
+dotnet user-secrets list
+dotnet build API.csproj
+dotnet run --launch-profile https
+```
+
+Observacoes:
+- Em desenvolvimento, use User Secrets para TokenKey (nao versiona no Git).
+- Em producao, use variaveis de ambiente.
+- A TokenKey deve ter pelo menos 64 caracteres.
+
+---
+
 ## Estado Atual da Arquitetura
 
 ### 1) Domain
@@ -365,7 +386,7 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 ### ✅ 1. DTOs de Resposta
 - **Arquivos**: `Web/Responses/UserResponse.cs`, `AccountResponse.cs`
 - **Benefício**: Previne vazamento de entidades do domínio para clientes HTTP
-- **Padrão**: `record UserResponse(string Id, string Email, string Displayname)`
+- **Padrão**: `record UserResponse(string Id, string Email, string DisplayName)`
 
 ### ✅ 2. Exception Handling Centralizado
 - **Arquivo**: `Web/ExceptionHandling/ApiExceptionFilter.cs`
@@ -379,7 +400,7 @@ Com isso, trocar ou adicionar estratégia de autenticação passa a ser operaç�
 
 ### ⏳ 4. Value Objects (YAGNI - Remover)
 - **Status**: Removido (não utilizado no MVP)
-- **Reintroduzir quando**: Email/Displayname tiverem regras complexas ou múltiplos agregados compartilharem validação
+- **Reintroduzir quando**: Email/DisplayName tiverem regras complexas ou múltiplos agregados compartilharem validação
 - **Padrão**: Será record imutável com factory method `Create()`
 
 ### ✅ 5. Domain Services
@@ -821,53 +842,53 @@ db.permissions.createIndex({ resource_id: 1, action_id: 1 }, { unique: true });
   "database": "datingapp",
   "collections": {
     "users": [
-      { "_id": 1, "email": "admin@datingapp.com", "password_hash": "hash_admin", "status": "ACTIVE" },
-      { "_id": 2, "email": "moderador@datingapp.com", "password_hash": "hash_mod", "status": "ACTIVE" },
-      { "_id": 3, "email": "premium@datingapp.com", "password_hash": "hash_premium", "status": "ACTIVE" },
-      { "_id": 4, "email": "basico@datingapp.com", "password_hash": "hash_basic", "status": "ACTIVE" },
-      { "_id": 5, "email": "suporte@datingapp.com", "password_hash": "hash_support", "status": "ACTIVE" }
+      { "_id": "2e0202c3-4551-4d75-a4d4-13b276626b75", "email": "admin@datingapp.com", "password_hash": "hash_admin", "status": "ACTIVE" },
+      { "_id": "6f6d3a59-0f20-4fe0-a7a7-7a3da3f1f181", "email": "moderador@datingapp.com", "password_hash": "hash_mod", "status": "ACTIVE" },
+      { "_id": "ef90f5d5-8c3a-4d26-9b02-6f4f4b0baf70", "email": "premium@datingapp.com", "password_hash": "hash_premium", "status": "ACTIVE" },
+      { "_id": "a4d5f2c7-8ff5-4470-909f-96b7f7c16a2f", "email": "basico@datingapp.com", "password_hash": "hash_basic", "status": "ACTIVE" },
+      { "_id": "f1e8c7de-5a20-4f55-90ba-2cc82a3d6c14", "email": "suporte@datingapp.com", "password_hash": "hash_support", "status": "ACTIVE" }
     ],
     "roles": [
-      { "_id": 1, "name": "ADMIN", "description": "Acesso total ao sistema" },
-      { "_id": 2, "name": "MODERATOR", "description": "Moderação de conteúdo e usuários" },
-      { "_id": 3, "name": "PREMIUM_USER", "description": "Usuário com recursos premium" },
-      { "_id": 4, "name": "BASIC_USER", "description": "Usuário padrão" },
-      { "_id": 5, "name": "SUPPORT", "description": "Atendimento e suporte interno" }
+      { "_id": "9b5ac0d7-b04a-46b7-9a9d-3f1b8368bb95", "name": "ADMIN", "description": "Acesso total ao sistema" },
+      { "_id": "f72f4a14-2d14-4f3e-85a5-3ce84f89f9e7", "name": "MODERATOR", "description": "Moderação de conteúdo e usuários" },
+      { "_id": "1ca8b8d2-7166-4a37-b771-0f825e6e4d21", "name": "PREMIUM_USER", "description": "Usuário com recursos premium" },
+      { "_id": "3f6c4470-6f34-4f78-a7a4-8f2df4e6497a", "name": "BASIC_USER", "description": "Usuário padrão" },
+      { "_id": "b49c93cd-cc76-4c4f-bb2b-f0a0b7d45066", "name": "SUPPORT", "description": "Atendimento e suporte interno" }
     ],
     "actions": [
-      { "_id": 1, "name": "VIEW" },
-      { "_id": 2, "name": "CLICK" },
-      { "_id": 3, "name": "EDIT" },
-      { "_id": 4, "name": "DELETE" },
-      { "_id": 5, "name": "EXPORT" }
+      { "_id": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41", "name": "VIEW" },
+      { "_id": "0f9225df-5715-4339-bde7-1ff92f2189e5", "name": "CLICK" },
+      { "_id": "8b5387ce-c08c-4f6e-a4af-4fd7f0534f64", "name": "EDIT" },
+      { "_id": "6dfd38bd-d5d1-4b85-8ecf-53a39f6f2ebd", "name": "DELETE" },
+      { "_id": "ccecf94b-9ef3-4816-b76b-c8f0fe58f3d8", "name": "EXPORT" }
     ],
     "resources": [
-      { "_id": 1, "type": "PAGE", "key": "page:dashboard", "parent_resource_id": null, "description": "Página principal" },
-      { "_id": 2, "type": "PAGE", "key": "page:profile", "parent_resource_id": null, "description": "Página de perfil" },
-      { "_id": 3, "type": "COMPONENT", "key": "component:profile:edit-button", "parent_resource_id": 2, "description": "Botão editar perfil" },
-      { "_id": 4, "type": "COMPONENT", "key": "component:dashboard:export-button", "parent_resource_id": 1, "description": "Botão exportar dados" },
-      { "_id": 5, "type": "API", "key": "api:users:list", "parent_resource_id": null, "description": "Endpoint de listagem de usuários" }
+      { "_id": "d98f6ca0-f96f-4caf-8ec4-c7dbf7e5e87b", "type": "PAGE", "key": "page:dashboard", "parent_resource_id": null, "description": "Página principal" },
+      { "_id": "49cd4d0f-2db9-4d9a-8a6f-b64546a1e014", "type": "PAGE", "key": "page:profile", "parent_resource_id": null, "description": "Página de perfil" },
+      { "_id": "60f8a75a-b4cc-4638-9f66-84f31d9114cd", "type": "COMPONENT", "key": "component:profile:edit-button", "parent_resource_id": "49cd4d0f-2db9-4d9a-8a6f-b64546a1e014", "description": "Botão editar perfil" },
+      { "_id": "88cd30e1-88d4-48b8-a694-82f8b3e0f4a7", "type": "COMPONENT", "key": "component:dashboard:export-button", "parent_resource_id": "d98f6ca0-f96f-4caf-8ec4-c7dbf7e5e87b", "description": "Botão exportar dados" },
+      { "_id": "23d19359-38bf-4d3a-bd49-6fd7db8d0d20", "type": "API", "key": "api:users:list", "parent_resource_id": null, "description": "Endpoint de listagem de usuários" }
     ],
     "permissions": [
-      { "_id": 1, "resource_id": 1, "action_id": 1, "effect": "ALLOW" },
-      { "_id": 2, "resource_id": 2, "action_id": 1, "effect": "ALLOW" },
-      { "_id": 3, "resource_id": 3, "action_id": 2, "effect": "ALLOW" },
-      { "_id": 4, "resource_id": 4, "action_id": 5, "effect": "DENY" },
-      { "_id": 5, "resource_id": 5, "action_id": 1, "effect": "ALLOW" }
+      { "_id": "cabf1f97-6f0e-4dca-95f1-9ec2be5f7e60", "resource_id": "d98f6ca0-f96f-4caf-8ec4-c7dbf7e5e87b", "action_id": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41", "effect": "ALLOW" },
+      { "_id": "5e11dfe8-82c3-4f63-91c5-78889ffdcfbc", "resource_id": "49cd4d0f-2db9-4d9a-8a6f-b64546a1e014", "action_id": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41", "effect": "ALLOW" },
+      { "_id": "bd81c4be-927f-470a-b643-4b0c6b23e8c1", "resource_id": "60f8a75a-b4cc-4638-9f66-84f31d9114cd", "action_id": "0f9225df-5715-4339-bde7-1ff92f2189e5", "effect": "ALLOW" },
+      { "_id": "f6389f8f-d2e7-4c16-8e3a-16535e0d48ea", "resource_id": "88cd30e1-88d4-48b8-a694-82f8b3e0f4a7", "action_id": "ccecf94b-9ef3-4816-b76b-c8f0fe58f3d8", "effect": "DENY" },
+      { "_id": "d95af443-03ec-4b85-98f4-3f1a3d2d8e8e", "resource_id": "23d19359-38bf-4d3a-bd49-6fd7db8d0d20", "action_id": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41", "effect": "ALLOW" }
     ],
     "user_roles": [
-      { "user_id": 1, "role_id": 1, "assigned_at": "2026-04-20T00:00:00.000Z" },
-      { "user_id": 2, "role_id": 2, "assigned_at": "2026-04-20T00:00:00.000Z" },
-      { "user_id": 3, "role_id": 3, "assigned_at": "2026-04-20T00:00:00.000Z" },
-      { "user_id": 4, "role_id": 4, "assigned_at": "2026-04-20T00:00:00.000Z" },
-      { "user_id": 5, "role_id": 5, "assigned_at": "2026-04-20T00:00:00.000Z" }
+      { "user_id": "2e0202c3-4551-4d75-a4d4-13b276626b75", "role_id": "9b5ac0d7-b04a-46b7-9a9d-3f1b8368bb95", "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": "6f6d3a59-0f20-4fe0-a7a7-7a3da3f1f181", "role_id": "f72f4a14-2d14-4f3e-85a5-3ce84f89f9e7", "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": "ef90f5d5-8c3a-4d26-9b02-6f4f4b0baf70", "role_id": "1ca8b8d2-7166-4a37-b771-0f825e6e4d21", "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": "a4d5f2c7-8ff5-4470-909f-96b7f7c16a2f", "role_id": "3f6c4470-6f34-4f78-a7a4-8f2df4e6497a", "assigned_at": "2026-04-20T00:00:00.000Z" },
+      { "user_id": "f1e8c7de-5a20-4f55-90ba-2cc82a3d6c14", "role_id": "b49c93cd-cc76-4c4f-bb2b-f0a0b7d45066", "assigned_at": "2026-04-20T00:00:00.000Z" }
     ],
     "role_permissions": [
-      { "role_id": 1, "permission_id": 1 },
-      { "role_id": 1, "permission_id": 5 },
-      { "role_id": 2, "permission_id": 5 },
-      { "role_id": 3, "permission_id": 3 },
-      { "role_id": 4, "permission_id": 4 }
+      { "role_id": "9b5ac0d7-b04a-46b7-9a9d-3f1b8368bb95", "permission_id": "cabf1f97-6f0e-4dca-95f1-9ec2be5f7e60" },
+      { "role_id": "9b5ac0d7-b04a-46b7-9a9d-3f1b8368bb95", "permission_id": "d95af443-03ec-4b85-98f4-3f1a3d2d8e8e" },
+      { "role_id": "f72f4a14-2d14-4f3e-85a5-3ce84f89f9e7", "permission_id": "d95af443-03ec-4b85-98f4-3f1a3d2d8e8e" },
+      { "role_id": "1ca8b8d2-7166-4a37-b771-0f825e6e4d21", "permission_id": "bd81c4be-927f-470a-b643-4b0c6b23e8c1" },
+      { "role_id": "3f6c4470-6f34-4f78-a7a4-8f2df4e6497a", "permission_id": "f6389f8f-d2e7-4c16-8e3a-16535e0d48ea" }
     ]
   },
   "indexes": {

@@ -1,4 +1,5 @@
 using API.Application.DTOs.Requests.Login;
+using API.Application.Ports.Infrastructure;
 using API.Application.Ports.Services;
 using API.Application.UseCases.Login;
 using API.Domain.Entities;
@@ -12,12 +13,15 @@ namespace API.UnitTests.Application.UseCases.Login;
 public class LoginUseCaseTests
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly ITokenService _tokenService;
     private readonly LoginUseCase _sut;
 
     public LoginUseCaseTests()
     {
         _accountRepository = Substitute.For<IAccountRepository>();
-        _sut = new LoginUseCase(_accountRepository);
+        _tokenService = Substitute.For<ITokenService>();
+        _tokenService.CreateToken(Arg.Any<AppUser>()).Returns("fake-token");
+        _sut = new LoginUseCase(_accountRepository, _tokenService);
     }
 
     // ──────────────────────────────────────────────
@@ -27,7 +31,7 @@ public class LoginUseCaseTests
     [Fact]
     public async Task ExecuteAsync_WhenInputIsNull_ThrowsArgumentNullException()
     {
-        var act = () => _sut.ExecuteAsync(null!);
+        var act = () => _sut.LoginAsync(null!);
 
         await act.Should().ThrowAsync<ArgumentNullException>()
             .WithParameterName("input");
@@ -41,7 +45,7 @@ public class LoginUseCaseTests
     {
         var input = new LoginInput { Email = email!, Password = "qualquer" };
 
-        var act = () => _sut.ExecuteAsync(input);
+        var act = () => _sut.LoginAsync(input);
 
         await act.Should().ThrowAsync<DomainException>()
             .WithMessage("*Email*");
@@ -55,7 +59,7 @@ public class LoginUseCaseTests
     {
         var input = new LoginInput { Email = "user@test.com", Password = password! };
 
-        var act = () => _sut.ExecuteAsync(input);
+        var act = () => _sut.LoginAsync(input);
 
         await act.Should().ThrowAsync<DomainException>()
             .WithMessage("*enha*");
@@ -72,7 +76,7 @@ public class LoginUseCaseTests
 
         var input = new LoginInput { Email = "noexist@test.com", Password = "qualquer" };
 
-        var act = () => _sut.ExecuteAsync(input);
+        var act = () => _sut.LoginAsync(input);
 
         await act.Should().ThrowAsync<InvalidCredentialsException>();
     }
@@ -84,7 +88,7 @@ public class LoginUseCaseTests
 
         var input = new LoginInput { Email = "  user@test.com  ", Password = "qualquer" };
 
-        await Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.ExecuteAsync(input));
+        await Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.LoginAsync(input));
 
         await _accountRepository.Received(1).GetByEmailAsync("user@test.com");
     }
@@ -101,7 +105,7 @@ public class LoginUseCaseTests
 
         var input = new LoginInput { Email = "user@test.com", Password = "senhaErrada" };
 
-        var act = () => _sut.ExecuteAsync(input);
+        var act = () => _sut.LoginAsync(input);
 
         await act.Should().ThrowAsync<InvalidCredentialsException>();
     }
@@ -119,9 +123,12 @@ public class LoginUseCaseTests
 
         var input = new LoginInput { Email = "user@test.com", Password = password };
 
-        var result = await _sut.ExecuteAsync(input);
+        var result = await _sut.LoginAsync(input);
 
-        result.Should().BeSameAs(user);
+        result.Id.Should().Be(user.Id);
+        result.Email.Should().Be(user.Email);
+        result.DisplayName.Should().Be(user.DisplayName);
+        result.Token.Should().Be("fake-token");
     }
 
     [Fact]
@@ -133,7 +140,7 @@ public class LoginUseCaseTests
 
         var input = new LoginInput { Email = "user@test.com", Password = password };
 
-        await _sut.ExecuteAsync(input);
+        await _sut.LoginAsync(input);
 
         await _accountRepository.Received(1).GetByEmailAsync("user@test.com");
     }
@@ -147,7 +154,7 @@ public class LoginUseCaseTests
         var (hash, salt) = PasswordService.ComputePasswordHash(password);
         return new AppUser
         {
-            Displayname = "Test User",
+            DisplayName = "Test User",
             Email = "user@test.com",
             PasswordHash = hash,
             PasswordSalt = salt
