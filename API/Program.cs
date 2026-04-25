@@ -6,6 +6,9 @@ using API.Web;
 using API.Web.ExceptionHandling;
 using API.Application.Ports.Infrastructure;
 using API.Domain.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,23 @@ builder.Services.AddWebApi();
 builder.Services.AddCors();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var tokenKey = builder.Configuration["TokenKey"]
+            ?? throw new Exception("Token key not found - Program.cs");
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(tokenKey)
+            ),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+
 
 builder.Services.AddSwaggerDocumentation();
 
@@ -41,6 +61,8 @@ app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
 
 // Garante payload de erro padrao para status sem corpo (ex.: 404/405/415).
 app.UseApiStatusCodeResponses();
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Mapeia os endpoints dos controllers da API.
 app.MapControllers();

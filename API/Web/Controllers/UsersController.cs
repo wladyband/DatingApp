@@ -4,6 +4,7 @@ using API.Web;
 using API.Web.Attributes;
 using API.Web.Mappers;
 using API.Web.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -58,6 +59,7 @@ public class UsersController : BaseApiController
     [SwaggerOperation(Summary = "Buscar usuário por ID", Description = "Retorna um único usuário quando encontrado.")]
     [ProducesOkApiResponse(typeof(UserResponse))]
     [ProducesNotFoundApiResponse]
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
