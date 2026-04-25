@@ -977,3 +977,187 @@ db.user_roles.aggregate([
 - **Performance**: Índices múltiplos garantem queries eficientes
 - **Flexibilidade**: Modelo suporta qualquer combinação de Resource + Action
 - **Escalabilidade**: Pode crescer para centenas de usuários, papéis e permissões sem degradação
+
+---
+
+## Snapshot Denormalizado de Users
+
+```javascript
+// ========================================
+// COLLECTION: users (snapshot denormalizado)
+// ========================================
+
+// ADMIN
+{
+  "_id": "2e0202c3-4551-4d75-a4d4-13b276626b75",
+  "email": "admin@datingapp.com",
+  "passwordHash": "hash_admin",
+  "status": "ACTIVE",
+  "createdAt": ISODate("2026-04-20T00:00:00.000Z"),
+  "updatedAt": ISODate("2026-04-25T10:30:00.000Z"),
+  "roles": [
+    {
+      "roleId": "9b5ac0d7-b04a-46b7-9a9d-3f1b8368bb95",
+      "name": "ADMIN",
+      "description": "Acesso total ao sistema",
+      "assignedAt": ISODate("2026-04-20T00:00:00.000Z"),
+      "permissions": [
+        {
+          "permissionId": "cabf1f97-6f0e-4dca-95f1-9ec2be5f7e60",
+          "effect": "ALLOW",
+          "resource": {
+            "resourceId": "d98f6ca0-f96f-4caf-8ec4-c7dbf7e5e87b",
+            "type": "PAGE",
+            "key": "page:dashboard",
+            "parentResourceId": null,
+            "description": "Página principal"
+          },
+          "action": {
+            "actionId": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41",
+            "name": "VIEW"
+          }
+        },
+        {
+          "permissionId": "d95af443-03ec-4b85-98f4-3f1a3d2d8e8e",
+          "effect": "ALLOW",
+          "resource": {
+            "resourceId": "23d19359-38bf-4d3a-bd49-6fd7db8d0d20",
+            "type": "API",
+            "key": "api:users:list",
+            "parentResourceId": null,
+            "description": "Endpoint de listagem de usuários"
+          },
+          "action": {
+            "actionId": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41",
+            "name": "VIEW"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+// MODERADOR
+{
+  "_id": "6f6d3a59-0f20-4fe0-a7a7-7a3da3f1f181",
+  "email": "moderador@datingapp.com",
+  "passwordHash": "hash_mod",
+  "status": "ACTIVE",
+  "createdAt": ISODate("2026-04-20T00:00:00.000Z"),
+  "updatedAt": ISODate("2026-04-25T10:30:00.000Z"),
+  "roles": [
+    {
+      "roleId": "f72f4a14-2d14-4f3e-85a5-3ce84f89f9e7",
+      "name": "MODERATOR",
+      "description": "Moderação de conteúdo e usuários",
+      "assignedAt": ISODate("2026-04-20T00:00:00.000Z"),
+      "permissions": [
+        {
+          "permissionId": "d95af443-03ec-4b85-98f4-3f1a3d2d8e8e",
+          "effect": "ALLOW",
+          "resource": {
+            "resourceId": "23d19359-38bf-4d3a-bd49-6fd7db8d0d20",
+            "type": "API",
+            "key": "api:users:list",
+            "parentResourceId": null,
+            "description": "Endpoint de listagem de usuários"
+          },
+          "action": {
+            "actionId": "a0f2d132-7b5f-45a0-8bf3-8f77b25e9c41",
+            "name": "VIEW"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+// PREMIUM USER
+{
+  "_id": "ef90f5d5-8c3a-4d26-9b02-6f4f4b0baf70",
+  "email": "premium@datingapp.com",
+  "passwordHash": "hash_premium",
+  "status": "ACTIVE",
+  "createdAt": ISODate("2026-04-20T00:00:00.000Z"),
+  "updatedAt": ISODate("2026-04-25T10:30:00.000Z"),
+  "roles": [
+    {
+      "roleId": "1ca8b8d2-7166-4a37-b771-0f825e6e4d21",
+      "name": "PREMIUM_USER",
+      "description": "Usuário com recursos premium",
+      "assignedAt": ISODate("2026-04-20T00:00:00.000Z"),
+      "permissions": [
+        {
+          "permissionId": "bd81c4be-927f-470a-b643-4b0c6b23e8c1",
+          "effect": "ALLOW",
+          "resource": {
+            "resourceId": "60f8a75a-b4cc-4638-9f66-84f31d9114cd",
+            "type": "COMPONENT",
+            "key": "component:profile:edit-button",
+            "parentResourceId": "49cd4d0f-2db9-4d9a-8a6f-b64546a1e014",
+            "description": "Botão editar perfil"
+          },
+          "action": {
+            "actionId": "0f9225df-5715-4339-bde7-1ff92f2189e5",
+            "name": "CLICK"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+// BASIC USER
+{
+  "_id": "a4d5f2c7-8ff5-4470-909f-96b7f7c16a2f",
+  "email": "basico@datingapp.com",
+  "passwordHash": "hash_basic",
+  "status": "ACTIVE",
+  "createdAt": ISODate("2026-04-20T00:00:00.000Z"),
+  "updatedAt": ISODate("2026-04-25T10:30:00.000Z"),
+  "roles": [
+    {
+      "roleId": "3f6c4470-6f34-4f78-a7a4-8f2df4e6497a",
+      "name": "BASIC_USER",
+      "description": "Usuário padrão",
+      "assignedAt": ISODate("2026-04-20T00:00:00.000Z"),
+      "permissions": [
+        {
+          "permissionId": "f6389f8f-d2e7-4c16-8e3a-16535e0d48ea",
+          "effect": "DENY",
+          "resource": {
+            "resourceId": "88cd30e1-88d4-48b8-a694-82f8b3e0f4a7",
+            "type": "COMPONENT",
+            "key": "component:dashboard:export-button",
+            "parentResourceId": "d98f6ca0-f96f-4caf-8ec4-c7dbf7e5e87b",
+            "description": "Botão exportar dados"
+          },
+          "action": {
+            "actionId": "ccecf94b-9ef3-4816-b76b-c8f0fe58f3d8",
+            "name": "EXPORT"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+// SUPORTE
+{
+  "_id": "f1e8c7de-5a20-4f55-90ba-2cc82a3d6c14",
+  "email": "suporte@datingapp.com",
+  "passwordHash": "hash_support",
+  "status": "ACTIVE",
+  "createdAt": ISODate("2026-04-20T00:00:00.000Z"),
+  "updatedAt": ISODate("2026-04-25T10:30:00.000Z"),
+  "roles": [
+    {
+      "roleId": "b49c93cd-cc76-4c4f-bb2b-f0a0b7d45066",
+      "name": "SUPPORT",
+      "description": "Atendimento e suporte interno",
+      "assignedAt": ISODate("2026-04-20T00:00:00.000Z"),
+      "permissions": []
+    }
+  ]
+}
+```

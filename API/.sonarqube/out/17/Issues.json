@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "5.3.0.0",
+        "fileVersion": "5.3.0-2.26180.118 (1e7d5a8ae309af8fad1826a5e968aae30719a281)",
+        "semanticVersion": "5.3.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "CS0101",
+          "level": "error",
+          "message": "The namespace 'API.Infrastructure' already contains a definition for 'IPersistenceInitializationService'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IPersistenceInitializationService.cs",
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 18,
+                  "endLine": 7,
+                  "endColumn": 51
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0101",
+          "level": "error",
+          "message": "The namespace 'API.Infrastructure' already contains a definition for 'IPostgreSqlInitializer'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IPostgreSqlInitializer.cs",
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 18,
+                  "endLine": 3,
+                  "endColumn": 40
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0101",
+          "level": "error",
+          "message": "The namespace 'API.Infrastructure' already contains a definition for 'IMongoDbInitializer'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IMongoDbInitializer.cs",
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 18,
+                  "endLine": 3,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0111",
+          "level": "error",
+          "message": "Type 'IPostgreSqlInitializer' already defines a member called 'InitializeIfEnabledAsync' with the same parameter types",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IPostgreSqlInitializer.cs",
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 10,
+                  "endLine": 5,
+                  "endColumn": 34
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0111",
+          "level": "error",
+          "message": "Type 'IMongoDbInitializer' already defines a member called 'InitializeAsync' with the same parameter types",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IMongoDbInitializer.cs",
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 10,
+                  "endLine": 5,
+                  "endColumn": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0111",
+          "level": "error",
+          "message": "Type 'IPersistenceInitializationService' already defines a member called 'InitializeAsync' with the same parameter types",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/DatingApp/API/Infrastructure/Persistence/Contracts/IPersistenceInitializationService.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 10,
+                  "endLine": 12,
+                  "endColumn": 25
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "CS0101": {
+          "id": "CS0101",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0101)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        },
+        "CS0111": {
+          "id": "CS0111",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0111)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
