@@ -14,15 +14,16 @@ public class GetUserByIdUseCase
 
     public GetUserByIdUseCase(IUserRepository userRepository)
     {
+        ArgumentNullException.ThrowIfNull(userRepository);
         _userRepository = userRepository;
     }
 
-    public async Task<AppUser?> GetByIdAsync(string userId)
+    public async Task<AppUser?> GetByIdAsync(string userId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(userId))
             throw new DomainException("ID do usuário é obrigatório.");
 
-        return await _userRepository.GetByIdAsync(userId);
+        return await _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 }
 

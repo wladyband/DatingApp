@@ -4,7 +4,7 @@ namespace API.Application.Ports.Services;
 
 public interface IAccountRepository
 {
-    Task<AppUser?> GetByEmailAsync(string email);
+    Task<AppUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
-    Task AddAsync(AppUser user);
+    Task AddAsync(AppUser user, CancellationToken cancellationToken = default);
 }

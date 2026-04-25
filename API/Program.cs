@@ -22,7 +22,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         var tokenKey = builder.Configuration["TokenKey"]
-            ?? throw new Exception("Token key not found - Program.cs");
+            ?? throw new InvalidOperationException("Token key not found - Program.cs");
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -68,6 +68,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Inicia a aplicacao web.
-app.Run();
+await app.RunAsync();
 
 

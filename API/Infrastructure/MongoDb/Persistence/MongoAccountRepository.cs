@@ -15,14 +15,14 @@ public class MongoAccountRepository : IAccountRepository
         _users = database.GetCollection<AppUser>(options.Value.UsersCollection);
     }
 
-    public async Task<AppUser?> GetByEmailAsync(string email)
+    public async Task<AppUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        return await _users.Find(u => u.Email == email).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task AddAsync(AppUser user)
+    public async Task AddAsync(AppUser user, CancellationToken cancellationToken = default)
     {
-        await _users.InsertOneAsync(user);
+        await _users.InsertOneAsync(user, cancellationToken: cancellationToken);
     }
 }
 

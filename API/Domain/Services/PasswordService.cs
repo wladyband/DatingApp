@@ -6,7 +6,7 @@ namespace API.Domain.Services;
 /// Domain Service para gerenciar hash e salt de senhas.
 /// Concentra lógica criptográfica de domínio.
 /// </summary>
-public class PasswordService
+public static class PasswordService
 {
     /// <summary>
     /// Computa hash e salt para uma senha em plain text.

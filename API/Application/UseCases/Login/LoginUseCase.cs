@@ -2,7 +2,6 @@ using System;
 using API.Application.DTOs.Requests.Login;
 using API.Application.Ports.Services;
 using API.Domain.Services;
-using API.Domain.Entities;
 using API.Domain.Exceptions;
 using API.Application.DTOs.Requests.Users;
 using API.Application.Ports.Infrastructure;
@@ -20,13 +19,15 @@ public class LoginUseCase
 
     public LoginUseCase(IAccountRepository accountRepository, ITokenService tokenService)
     {
+        ArgumentNullException.ThrowIfNull(accountRepository);
+        ArgumentNullException.ThrowIfNull(tokenService);
+
         _accountRepository = accountRepository;
         _tokenService = tokenService;
     }
 
-    public async Task<UserInput> LoginAsync(LoginInput input)
+    public async Task<UserInput> LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
     {
-        // Validações de entrada
         if (input == null)
             throw new ArgumentNullException(nameof(input));
 
@@ -36,17 +37,13 @@ public class LoginUseCase
         if (string.IsNullOrWhiteSpace(input.Password))
             throw new DomainException("Senha é obrigatória.");
 
-        // Normaliza o email
-        var normalizedEmail = input.Email.Trim();
+        var normalizedEmailAddress = input.Email.Trim();
 
-        // Busca usuário no repositório
-        var user = await _accountRepository.GetByEmailAsync(normalizedEmail);
+        var user = await _accountRepository.GetByEmailAsync(normalizedEmailAddress, cancellationToken);
 
-        // Valida se usuário existe
         if (user == null)
             throw new InvalidCredentialsException();
 
-        // Valida se a senha está correta
         var isPasswordValid = PasswordService.VerifyPassword(
             input.Password,
             user.PasswordHash,
@@ -56,7 +53,6 @@ public class LoginUseCase
         if (!isPasswordValid)
             throw new InvalidCredentialsException();
 
-        // Retorna o usuário autenticado
         return new UserInput
         {
             Id = user.Id,
@@ -64,6 +60,5 @@ public class LoginUseCase
             DisplayName = user.DisplayName,
             Token = _tokenService.CreateToken(user)
         };
-
     }
 }

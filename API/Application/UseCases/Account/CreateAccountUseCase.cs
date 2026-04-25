@@ -17,12 +17,16 @@ public class CreateAccountUseCase
 
     public CreateAccountUseCase(IAccountRepository accountRepository, IEmailPortAdapter emailService, ITokenService tokenService)
     {
+        ArgumentNullException.ThrowIfNull(accountRepository);
+        ArgumentNullException.ThrowIfNull(emailService);
+        ArgumentNullException.ThrowIfNull(tokenService);
+
         _accountRepository = accountRepository;
         _emailService = emailService;
         _tokenService = tokenService;
     }
 
-    public async Task<UserInput> RegisterAsync(CreateAccountInput input)
+    public async Task<UserInput> RegisterAsync(CreateAccountInput input, CancellationToken cancellationToken = default)
     {
         if (input == null)
             throw new ArgumentNullException(nameof(input));
@@ -36,24 +40,24 @@ public class CreateAccountUseCase
         if (string.IsNullOrWhiteSpace(input.Password))
             throw new DomainException("Senha é obrigatória.");
 
-        var normalizedEmail = input.Email.Trim();
+        var normalizedEmailAddress = input.Email.Trim();
 
-        var existingUser = await _accountRepository.GetByEmailAsync(normalizedEmail);
+        var existingUser = await _accountRepository.GetByEmailAsync(normalizedEmailAddress, cancellationToken);
         if (existingUser != null)
-            throw new UserAlreadyExistsException(normalizedEmail);
+            throw new UserAlreadyExistsException(normalizedEmailAddress);
 
         var (computedHash, salt) = PasswordService.ComputePasswordHash(input.Password);
 
         var user = new AppUser
         {
-            Email = normalizedEmail,
+            Email = normalizedEmailAddress,
             DisplayName = input.DisplayName.Trim(),
             PasswordHash = computedHash,
             PasswordSalt = salt
         };
 
-        await _accountRepository.AddAsync(user);
-        await _emailService.SendWelcomeEmailAsync(user.Email, user.DisplayName);
+        await _accountRepository.AddAsync(user, cancellationToken);
+        await _emailService.SendWelcomeEmailAsync(user.Email, user.DisplayName, cancellationToken);
 
         return new UserInput
         {

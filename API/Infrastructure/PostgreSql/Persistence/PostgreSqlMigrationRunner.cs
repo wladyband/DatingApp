@@ -64,7 +64,7 @@ public static class PostgreSqlMigrationRunner
             try
             {
                 await using var command = new NpgsqlCommand(sql, connection, transaction);
-                await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync(CancellationToken.None);
 
                 await RegisterMigrationAsync(connection, migrationId, transaction);
 
@@ -89,14 +89,14 @@ public static class PostgreSqlMigrationRunner
             """;
 
         await using var command = new NpgsqlCommand(sql, connection);
-        await command.ExecuteNonQueryAsync();
+        await command.ExecuteNonQueryAsync(CancellationToken.None);
     }
 
     private static async Task<HashSet<string>> GetAppliedMigrationsAsync(NpgsqlConnection connection)
     {
         var sql = $"SELECT \"MigrationId\" FROM \"{MigrationsHistoryTable}\";";
         await using var command = new NpgsqlCommand(sql, connection);
-        await using var reader = await command.ExecuteReaderAsync();
+        await using var reader = await command.ExecuteReaderAsync(CancellationToken.None);
 
         var applied = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -124,12 +124,12 @@ public static class PostgreSqlMigrationRunner
             : new NpgsqlCommand(sql, connection, transaction);
 
         command.Parameters.AddWithValue("migrationId", migrationId);
-        await command.ExecuteNonQueryAsync();
+        await command.ExecuteNonQueryAsync(CancellationToken.None);
     }
 
     private static string ExtractMigrationId(string fileName)
     {
-        var match = Regex.Match(fileName, "^(\\d+)_.*\\.sql$", RegexOptions.CultureInvariant);
+        var match = Regex.Match(fileName, "^(\\d+)_.*\\.sql$", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
         return match.Success ? match.Groups[1].Value : string.Empty;
     }
 }

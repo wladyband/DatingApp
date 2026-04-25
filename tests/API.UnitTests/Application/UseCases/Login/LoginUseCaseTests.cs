@@ -72,7 +72,7 @@ public class LoginUseCaseTests
     [Fact]
     public async Task ExecuteAsync_WhenUserNotFound_ThrowsInvalidCredentialsException()
     {
-        _accountRepository.GetByEmailAsync(Arg.Any<string>()).Returns((AppUser?)null);
+        _accountRepository.GetByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((AppUser?)null);
 
         var input = new LoginInput { Email = "noexist@test.com", Password = "qualquer" };
 
@@ -84,13 +84,13 @@ public class LoginUseCaseTests
     [Fact]
     public async Task ExecuteAsync_NormalizesEmailBeforeQuerying()
     {
-        _accountRepository.GetByEmailAsync(Arg.Any<string>()).Returns((AppUser?)null);
+        _accountRepository.GetByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((AppUser?)null);
 
         var input = new LoginInput { Email = "  user@test.com  ", Password = "qualquer" };
 
         await Assert.ThrowsAsync<InvalidCredentialsException>(() => _sut.LoginAsync(input));
 
-        await _accountRepository.Received(1).GetByEmailAsync("user@test.com");
+        await _accountRepository.Received(1).GetByEmailAsync("user@test.com", Arg.Any<CancellationToken>());
     }
 
     // ──────────────────────────────────────────────
@@ -101,7 +101,7 @@ public class LoginUseCaseTests
     public async Task ExecuteAsync_WhenPasswordIsWrong_ThrowsInvalidCredentialsException()
     {
         var user = CreateUserWithPassword("senhaCorreta");
-        _accountRepository.GetByEmailAsync(Arg.Any<string>()).Returns(user);
+        _accountRepository.GetByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(user);
 
         var input = new LoginInput { Email = "user@test.com", Password = "senhaErrada" };
 
@@ -119,7 +119,7 @@ public class LoginUseCaseTests
     {
         const string password = "senhaCorreta123";
         var user = CreateUserWithPassword(password);
-        _accountRepository.GetByEmailAsync(Arg.Any<string>()).Returns(user);
+        _accountRepository.GetByEmailAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(user);
 
         var input = new LoginInput { Email = "user@test.com", Password = password };
 
@@ -136,13 +136,13 @@ public class LoginUseCaseTests
     {
         const string password = "senhaCorreta123";
         var user = CreateUserWithPassword(password);
-        _accountRepository.GetByEmailAsync("user@test.com").Returns(user);
+        _accountRepository.GetByEmailAsync("user@test.com", Arg.Any<CancellationToken>()).Returns(user);
 
         var input = new LoginInput { Email = "user@test.com", Password = password };
 
         await _sut.LoginAsync(input);
 
-        await _accountRepository.Received(1).GetByEmailAsync("user@test.com");
+        await _accountRepository.Received(1).GetByEmailAsync("user@test.com", Arg.Any<CancellationToken>());
     }
 
     // ──────────────────────────────────────────────

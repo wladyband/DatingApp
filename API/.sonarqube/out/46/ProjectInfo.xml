@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+  <ProjectName>API</ProjectName>
+  <ProjectLanguage>C#</ProjectLanguage>
+  <ProjectType>Product</ProjectType>
+  <ProjectGuid>9a3d253c-0ca8-4dda-a865-a41c40647c6c</ProjectGuid>
+  <FullPath>C:\DatingApp\API\API.csproj</FullPath>
+  <IsExcluded>false</IsExcluded>
+  <AnalysisResultFiles>
+    <AnalysisResultFile Id="FilesToAnalyze" Location="C:\DatingApp\API\.sonarqube\conf\46\FilesToAnalyze.txt" />
+  </AnalysisResultFiles>
+  <AnalysisSettings>
+    <Property Name="sonar.cs.roslyn.reportFilePaths">C:\DatingApp\API\.sonarqube\out\46\Issues.json</Property>
+    <Property Name="sonar.cs.analyzer.projectOutPaths">C:\DatingApp\API\.sonarqube\out\46</Property>
+    <Property Name="sonar.cs.scanner.telemetry">C:\DatingApp\API\.sonarqube\out\46\Telemetry.json</Property>
+  </AnalysisSettings>
+  <Configuration>Debug</Configuration>
+  <Platform>AnyCPU</Platform>
+  <TargetFramework>net10.0</TargetFramework>
+</ProjectInfo>

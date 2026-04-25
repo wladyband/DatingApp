@@ -9,12 +9,13 @@ public class GetAllUsersUseCase
 
     public GetAllUsersUseCase(IUserRepository userRepository)
     {
+        ArgumentNullException.ThrowIfNull(userRepository);
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<AppUser>> GetAllAsync()
+    public async Task<IEnumerable<AppUser>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _userRepository.GetAllAsync();
+        return await _userRepository.GetAllAsync(cancellationToken);
     }
 }
 

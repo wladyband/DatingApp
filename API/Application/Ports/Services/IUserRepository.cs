@@ -11,20 +11,20 @@ public interface IUserRepository
     /// <summary>
     /// Obtém um usuário por seu ID.
     /// </summary>
-    Task<AppUser?> GetByIdAsync(string id);
+    Task<AppUser?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtém um usuário por seu email.
     /// </summary>
-    Task<AppUser?> GetByEmailAsync(string email);
+    Task<AppUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 
 
 
-    Task AddAsync(AppUser user);
+    Task AddAsync(AppUser user, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<AppUser>> GetAllAsync();
+    Task<IEnumerable<AppUser>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task UpdateAsync(AppUser user);
+    Task UpdateAsync(AppUser user, CancellationToken cancellationToken = default);
 
-    Task RemoveAsync(string id);
+    Task RemoveAsync(string id, CancellationToken cancellationToken = default);
 }

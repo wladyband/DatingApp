@@ -15,23 +15,21 @@ public class EmailPortAdapter : IEmailPortAdapter
         _logger = logger;
     }
 
-    public Task SendWelcomeEmailAsync(string email, string displayName)
+    public Task SendWelcomeEmailAsync(string email, string displayName, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Email de boas-vindas seria enviado para {Email} ({DisplayName})",
             email, displayName);
 
-        // TODO: Implementar integração com provedor real
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordResetEmailAsync(string email, string resetToken)
+    public Task SendPasswordResetEmailAsync(string email, string resetToken, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Email de reset de senha seria enviado para {Email}",
             email);
 
-        // TODO: Implementar integração com provedor real
         return Task.CompletedTask;
     }
 }

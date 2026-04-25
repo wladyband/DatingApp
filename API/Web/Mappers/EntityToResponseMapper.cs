@@ -17,19 +17,19 @@ public static class EntityToResponseMapper
             DisplayName: user.DisplayName
         );
 
+    public static UserResponse ToUserResponse(this UserInput user) =>
+        new(
+            Id: user.Id,
+            Email: user.Email,
+            DisplayName: user.DisplayName
+        );
+
     public static AccountResponse ToAccountResponse(this AppUser user) =>
         new(
             Id: user.Id,
             Email: user.Email,
             DisplayName: user.DisplayName,
             Token: null
-        );
-
-    public static UserResponse ToUserResponse(this UserInput user) =>
-        new(
-            Id: user.Id,
-            Email: user.Email,
-            DisplayName: user.DisplayName
         );
 
     public static AccountResponse ToAccountResponse(this UserInput user) =>
